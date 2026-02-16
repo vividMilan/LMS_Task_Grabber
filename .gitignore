@@ -1,0 +1,15 @@
+# Virtual Environment
+bin/
+include/
+lib/
+lib64/
+
+#Python Configuration
+pyvenv.cfg 
+
+# Evironment Variables
+.env
+
+# Python bytecode
+__pycache__/
+*.py[cod]
