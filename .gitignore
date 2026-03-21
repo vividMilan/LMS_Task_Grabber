@@ -16,4 +16,4 @@ __pycache__/
 
 *.db
 
-src/*.db
+/src/assignments.db
