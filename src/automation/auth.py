@@ -1,5 +1,3 @@
-
-
 def login(page, username, password, url):
     """Logs into OUSL LMS via IAM."""
     try:
