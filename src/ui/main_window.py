@@ -1,14 +1,15 @@
 from PyQt6.QtWidgets import QMainWindow, QHBoxLayout, QWidget, QStackedWidget
 from .components.sidebar import Sidebar
-from .pages import HomePage, CalendarPage, SettingsPage
-
+from .pages.home import HomePage
+from .pages.calendar import CalendarPage
+from .pages.settings import SettingsPage
 
 class MainWindow(QMainWindow):
     
     def __init__ (self):
         super().__init__()
         self.setWindowTitle("LMS Task Grabber")
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(1200, 800)
 
         # Main Widget and Layout
         self.central_widget = QWidget()

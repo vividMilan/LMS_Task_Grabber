@@ -29,6 +29,11 @@ class Theme:
             if font_dir.exists():
                 for font_file in font_dir.glob("*.ttf"):
                     QFontDatabase.addApplicationFont(str(font_file))
+
+    class BorderRadius:
+        SMALL = 12
+        MEDIUM = 20
+        ROUND = 60
     
     @staticmethod
     def get_font(size=Fonts.NORMAL, bold=False, italic=False):

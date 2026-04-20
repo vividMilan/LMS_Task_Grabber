@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 import os
+import sys
 from db.repository import AssignmentRepository
 from db.session import init_db, get_db
 from automation.auth import login
