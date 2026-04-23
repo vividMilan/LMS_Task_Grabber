@@ -1,5 +1,7 @@
 from .models import Assignment, Course
 from tabulate import tabulate
+from PyQt6.QtCore import QDate  
+from datetime import datetime    
 
 class AssignmentRepository:
     
@@ -48,3 +50,25 @@ class AssignmentRepository:
     def get_all_assignments(self):
         """Returns all assignments as ORM objects"""
         return self.db.query(Assignment).all()
+    
+    def get_assignment_by_date(self, date):
+
+        if not isinstance(date, str):
+            date = date.strftime("%Y-%m-%d")
+
+        return self.db.query(Assignment).filter(Assignment.due_date == date).all()
+
+    def get_all_assignment_date(self):
+        result = self.db.query(Assignment.due_date).distinct().all()
+
+        dates = []
+
+        for row in result:
+            if row[0]:
+                dt = datetime.strptime(row[0], "%Y-%m-%d")
+                print(f"{dt.year}-{dt.month}-{dt.day}")
+                dates.append(QDate(dt.year, dt.month, dt.day))
+
+        print(dates)
+
+        return dates

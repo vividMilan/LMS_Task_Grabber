@@ -24,6 +24,27 @@ class TaskList(QScrollArea):
         self.populate()
         self.setWidget(content)
 
+    def refresh(self, new_tasks):
+        self.tasks = new_tasks
+
+        # remove task cards from list
+        while self.content_layout.count():
+            item = self.content_layout.takeAt(0)
+            card = item.widget()
+
+            if card:
+                card.deleteLater()
+
+        # rebuild
+        if not new_tasks:
+            self.show_empty_state()
+
+        else:
+            for task in new_tasks:
+                self.content_layout.addWidget(TaskCard(task))
+        
+        self.content_layout.addStretch()
+
     def populate(self):
         if not self.tasks:
             self.show_empty_state()
