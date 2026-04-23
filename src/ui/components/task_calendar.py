@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QCalendarWidget
 from PyQt6.QtGui import QPainter, QColor, QBrush
 from PyQt6.QtCore import Qt, QRect
-
+from ui.theme import Theme
 
 class TaskCalendar(QCalendarWidget):
     def __init__(self):
@@ -21,7 +21,7 @@ class TaskCalendar(QCalendarWidget):
 
             painter.setRenderHint(QPainter.RenderHint.Antialiasing)
 
-            painter.setBrush(QBrush(QColor("#4F8CFF")))
+            painter.setBrush(QBrush(QColor(Theme.Colors.INDICATOR_BLUE)))
             painter.setPen(Qt.PenStyle.NoPen)
 
             pill_width = 18

@@ -14,6 +14,7 @@ class Theme:
         TEXT_MUTED = "#4B5563"
         BADGE_BG = "#F59E0B"
         BADGE_TEXT = "#FFFFFF"
+        INDICATOR_BLUE = "#4F8CFF"
     
     class Fonts:
         FAMILY = "Poppins"
