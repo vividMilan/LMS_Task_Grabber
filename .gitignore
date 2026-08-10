@@ -11,6 +11,9 @@ pyvenv.cfg
 # Evironment Variables
 .env
 
+# Ruff
+.ruff_cache/
+
 # Python bytecode
 __pycache__/
 *.py[cod]

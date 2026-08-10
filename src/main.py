@@ -1,5 +1,7 @@
-from dotenv import load_dotenv
 import os
+
+from dotenv import load_dotenv
+
 from automation.auth import login
 from automation.browser import launch_browser
 from automation.task_grabber import grabUpcomingEvents
