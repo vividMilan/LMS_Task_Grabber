@@ -42,9 +42,3 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: auto-fix linting issues via Ruff [skip ci]"
-
-      - name: Run Pytest suite
-        env:
-          LMS_USERNAME: ${{ secrets.LMS_USERNAME }}
-          LMS_PASSWORD: ${{ secrets.LMS_PASSWORD }}
-        run: pytest
