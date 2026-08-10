@@ -36,8 +36,7 @@ jobs:
 
       - name: Auto fix linting and formatting with ruff
         run: |
-          ruff check --fix src/ tests/ || true
-          ruff format src/ tests/
+          ruff check --fix src/ || true
 
       - name: Commit fixes back to repo
         uses: stefanzweifel/git-auto-commit-action@v5
