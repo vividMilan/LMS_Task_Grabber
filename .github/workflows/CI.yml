@@ -1,0 +1,41 @@
+name: LMS Task Grabber CI
+
+on:
+    push:
+        branches: ["main"]
+    pull_request:
+        branches: ["main"]
+
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        permissions:
+          contents: write # Grants commit & push access to GITHUB_TOKEN
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+               ref: ${{ github.head_ref }}
+
+            - name: Set up Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.11"
+            
+            - name: Install dependencies
+              run: pip install -r requirements.txt
+
+            - name: Auto fix linting and formatting with ruff
+              run: | 
+                ruff check --fix src/ tests/
+                ruff format src/ tests/
+
+            - name: Commit fixes back to repo
+              uses: stefanzweifel/git-auto-commit-action@v5
+              with:
+                commit_message: "style: auto-fix linting issues via Ruff [skip ci]"
+
+            
+        
