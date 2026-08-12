@@ -17,9 +17,13 @@ def grabUpcomingEvents(page):
 
     print(f"[*] Total days with events: {total_days}")
 
-    link_locator = page.locator('xpath=//a[@data-action="view-event"]').all()
+    link_locator = day_cells.locator('xpath=//a[@data-action="view-event"]').all()
 
     for link in link_locator:
+        link_date = link.locator('xpath=/../../../../a[@data-action="view-day-link"]/span/span').inner_text().strip()
+
+        if (int(link_date) < today.day):
+            continue
         if link.get_attribute("href") not in day_cell_links:
             day_cell_links.append(link.get_attribute("href"))
 
@@ -54,6 +58,6 @@ def grabUpcomingEvents(page):
         assignments.append(assignment)
 
     print(f"[*] Total assignments found: {len(assignments)}")
-    
+
     for assignment in assignments:
         print(f"[*] {assignment['courseCode']} - {assignment['heading']} - Due: {assignment['dueDate']} | Link: {assignment['link']}")
