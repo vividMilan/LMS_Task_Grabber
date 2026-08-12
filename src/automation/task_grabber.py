@@ -2,6 +2,7 @@ from datetime import datetime
 
 from utils.date_parser import parse_due_date
 from utils.download_file import download_file
+from utils.assignment_type import assignment_type
 
 def grabUpcomingEvents(page):
     today = datetime.now().date()
@@ -47,6 +48,8 @@ def grabUpcomingEvents(page):
 
         heading = page.locator("h2").first.inner_text().strip()
 
+        type = assignment_type(heading)
+
         raw_text = due_div.inner_text()
 
         question_files = page.locator("a[href*='pdf']").all()
@@ -70,12 +73,11 @@ def grabUpcomingEvents(page):
                     "link": link,
                     "dueDate": parse_due_date(raw_text),
                     "Question Material": local_path or file_uri,
+                    "type": type,
                 }
 
-
-            
-
             assignments.append(assignment)
+            
         else:
             assignment = {
                 "courseCode": courseCode,
@@ -84,6 +86,7 @@ def grabUpcomingEvents(page):
                 "link": link,
                 "dueDate": parse_due_date(raw_text),
                 "Question Material": None,
+                "type": type,
             }
 
             assignments.append(assignment)
@@ -97,4 +100,5 @@ def grabUpcomingEvents(page):
             f"Due Date: {assignment['dueDate']}\n"
             f"Link: {assignment['link']}\n"
             f"Question Material: {assignment['Question Material']}\n"
+            f"Type: {assignment['type']}\n"
         )
