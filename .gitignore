@@ -5,6 +5,9 @@ lib/
 lib64/
 venv/
 
+# Downloaded Files
+downloads/
+
 #Python Configuration
 pyvenv.cfg 
 
