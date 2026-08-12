@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from utils.date_parser import parse_due_date
+
 
 def grabUpcomingEvents(page):
     today = datetime.now().date()

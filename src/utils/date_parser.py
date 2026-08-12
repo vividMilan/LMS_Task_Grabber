@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 def parse_due_date(input_due_text) -> datetime | None:
 
     try:
