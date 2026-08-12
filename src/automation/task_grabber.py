@@ -26,8 +26,8 @@ def grabUpcomingEvents(page):
             .strip()
         )
 
-        # if int(link_date) < today.day:
-        #     continue
+        if int(link_date) < today.day:
+            continue
 
         if link.get_attribute("href") not in day_cell_links:
             day_cell_links.append(link.get_attribute("href"))
@@ -58,10 +58,10 @@ def grabUpcomingEvents(page):
                 file_uri = question_file.get_attribute("href")
 
                 save_dir = f"downloads/{courseCode}"
-                local_file_path = download_file(file_uri, save_dir)
+                local_path = download_file(page, file_uri, output_dir=save_dir)
                 
-                if local_file_path:
-                    assignment["Question Material"] = local_file_path
+                if local_path:
+                    assignment["Question Material"] = local_path
 
                 assignment = {
                     "courseCode": courseCode,
@@ -69,7 +69,7 @@ def grabUpcomingEvents(page):
                     "heading": heading,
                     "link": link,
                     "dueDate": parse_due_date(raw_text),
-                    "Question Material": local_file_path or file_uri,
+                    "Question Material": local_path or file_uri,
                 }
 
 
