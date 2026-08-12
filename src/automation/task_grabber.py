@@ -1,11 +1,11 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from utils.date_parser import parse_due_date
 
 
 def grabUpcomingEvents(page):
-    today = datetime.now().date()
-
+    today = datetime.now(ZoneInfo("Asia/Colombo")).date()
     day_cell_links = []
 
     assignments = []

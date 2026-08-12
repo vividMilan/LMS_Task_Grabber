@@ -1,3 +1,6 @@
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
+
 def login(page, username, password, url):
     """Logs into OUSL LMS via IAM."""
     try:
@@ -16,10 +19,10 @@ def login(page, username, password, url):
         page.wait_for_selector('div[role="listitem"]', timeout=60000)
         print("[+] Logged in successfully!")
 
-    except TimeoutError as e:
+    except PlaywrightTimeoutError as e:
         print("[!] Timeout or login failed:", e)
         return False
-    except Exception as e:
+    except ValueError as e:
         print("[!] Login error:", e)
         return False
 
