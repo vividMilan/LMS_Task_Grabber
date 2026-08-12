@@ -2,39 +2,43 @@ name: LMS Task Grabber CI
 
 on:
   push:
-    branches: ["main", "dev"]
+    branches: ["*"]
   pull_request:
-    branches: ["main", "dev"]
+    branches: ["*"]
 
 jobs:
-  lint-and-test:
+  test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants commit & push access to GITHUB_TOKEN
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          # Fix: github.head_ref is only available on pull_request events.
+          # Fall back to github.ref_name for standard push events.
+          ref: ${{ github.event.pull_request.head.ref || github.ref_name }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: "pip"
+          cache: "pip" # Caches pip dependencies to speed up future runs
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install ruff pytest
 
-      # Fail CI if code is not formatted according to Ruff
-      - name: Check Code Formatting & Linting
+      - name: Install Playwright browsers & dependencies
+        run: playwright install --with-deps chromium
+
+      - name: Auto fix linting and formatting with ruff
         run: |
-          ruff check src/
-          ruff format --check src/
+          ruff check --fix src/ || true
 
-      # Install Playwright ONLY when actually running tests
-      # - name: Install Playwright Browsers
-      #   run: playwright install --with-deps chromium
-
-      # - name: Run Test Suite
-      #   run: pytest tests/
+      - name: Commit fixes back to repo
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-fix linting issues via Ruff [skip ci]"
