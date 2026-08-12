@@ -1,11 +1,12 @@
 from datetime import datetime
-
+from utils.date_parser import parse_due_date
 
 def grabUpcomingEvents(page):
     today = datetime.now().date()
 
     day_cell_links = []
-    headings = []
+
+    assignments = []
 
     calender_section = page.locator('section[data-block="calendar_month"]')
 
@@ -14,10 +15,13 @@ def grabUpcomingEvents(page):
 
     print(f"[*] Total days with events: {total_days}")
 
-    for day_cell in day_cells.all():
-        day_link = day_cell.locator('a[data-action="view-event"]')
+    link_locator = page.locator('xpath=//a[@data-action="view-event"]').all()
 
-        day_cell_links.append(day_link.get_attribute("href"))
+    for link in link_locator:
+        if link.get_attribute("href") not in day_cell_links:
+            day_cell_links.append(link.get_attribute("href"))
+
+
 
 
     for link in day_cell_links:
@@ -30,11 +34,24 @@ def grabUpcomingEvents(page):
 
         heading = page.locator('h2').first.inner_text().strip()
 
-        print(f"[*] | Course: {courseName} ({courseCode}) | Event: {heading}")
+        due_div = page.locator("xpath=//div[@data-region='activity-dates']/div[2]")
 
-        # heading = page.locator('h2').inner_text().strip()
-        # headings.append(heading)
+        if (due_div.count() == 0):
+            continue
+        
+        raw_text = due_div.inner_text()
 
+        assignment = {
+            "courseCode": courseCode,
+            "courseName": courseName,
+            "heading": heading,
+            "link": link,
+            "dueDate": parse_due_date(raw_text)
+        }
 
-    for heading in headings:
-        print(f"[*] Event: {heading}")
+        assignments.append(assignment)
+
+    print(f"[*] Total assignments found: {len(assignments)}")
+    
+    for assignment in assignments:
+        print(f"[*] {assignment['courseCode']} - {assignment['heading']} - Due: {assignment['dueDate']} | Link: {assignment['link']}")
