@@ -36,7 +36,7 @@ class File(Base):
 
     assignment_id: Mapped[str | None] = mapped_column(
         ForeignKey("assignments.id"),
-        nullable=True
+        nullable=False
     )
 
     assignment: Mapped["Assignment"] = relationship(

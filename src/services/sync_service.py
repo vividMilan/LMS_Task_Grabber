@@ -19,9 +19,13 @@ def process_and_save_scraped_assignment(
     try:
         for item in scraped_items:
 
+            course_repo.upsert_course(
+                db=db, course_id=item.course_id, name=item.course_name
+            )
+
             assignment_id = str(uuid.uuid4())
 
-            assignment_repo.upsert_assignment(
+            assignment, is_created = assignment_repo.upsert_assignment(
                 db=db,
                 assignment_id=assignment_id,
                 type=item.type,
@@ -31,17 +35,16 @@ def process_and_save_scraped_assignment(
                 due=item.due_date,
             )
 
+            if is_created:
+                stats["created"] += 1
+            else:
+                stats["updated"] += 1
+
             if (item.file_link or item.file_path):
                 file_repo.add_if_not_exists(db=db, course_id=item.course_id, file_path=item.file_path, file_link=item.file_link, assignment_id=assignment_id)
 
-            course_exits = course_repo.get_by_id(db=db, id_val=item.course_id)
-
-            if (course_exits):
-                continue
-
             course_repo.upsert_course(db=db, course_id=item.course_id, name=item.course_name)
 
-            stats["created"] += 1
             
     except Exception as e:
         db.rollback()

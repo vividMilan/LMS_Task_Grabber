@@ -17,7 +17,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
         due: datetime,
         link: str,
         type: Optional[str] = None,
-    ) -> (Assignment):
+    ) -> tuple[Assignment, bool]:
         """Inserts or updates an assignment record from scraped task data."""
 
         assignment = self.get_by_id(db=db, id_val=assignment_id)
@@ -28,6 +28,8 @@ class AssignmentRepository(BaseRepository[Assignment]):
             assignment.link = link
             assignment.type = type
             assignment.due = due
+
+            return assignment, False
         else:
             assignment = Assignment(
                 id=assignment_id,
@@ -43,7 +45,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
 
         db.commit()
         db.refresh(assignment)
-        return assignment
+        return assignment, True
 
 
     def get_upcoming(self, db: Session) -> Sequence[Assignment]:
