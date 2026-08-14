@@ -49,7 +49,8 @@ class Assignment(Base):
         ForeignKey("courses.id")
     )
     file_id: Mapped[int] = mapped_column(
-        ForeignKey("files.id")
+        ForeignKey("files.id"),
+        nullable=True
     )
     completed: Mapped[bool] = Column(Integer, default=0)
     type: Mapped[str] = Column(String, nullable=True)

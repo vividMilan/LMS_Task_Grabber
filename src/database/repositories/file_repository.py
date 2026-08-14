@@ -10,7 +10,7 @@ class FileRepository(BaseRepository[File]):
         """Inserts a downloaded file record if the link hasn't been saved yet."""
 
         existing = (
-            db.query(File).filter(File.file_link == file_link, File.course_id == course_id).first
+            db.query(File).filter(File.file_link == file_link, File.course_id == course_id).first()
         )
 
         if existing:
