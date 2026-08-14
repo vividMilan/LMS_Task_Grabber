@@ -16,22 +16,18 @@ class AssignmentRepository(BaseRepository[Assignment]):
         course_id: str,
         due: datetime,
         link: str,
-        file_id: Optional[int] = None,
         type: Optional[str] = None,
-    ) -> Assignment:
+    ) -> (Assignment):
         """Inserts or updates an assignment record from scraped task data."""
 
-        assignment = self.get_by_id(db, assignment_id)
+        assignment = self.get_by_id(db=db, id_val=assignment_id)
 
         if assignment:
             assignment.name = name
             assignment.course_id = course_id
             assignment.link = link
-            assignment.file_id = file_id
             assignment.type = type
             assignment.due = due
-            if file_id:
-                assignment.file_id = file_id
         else:
             assignment = Assignment(
                 id=assignment_id,
@@ -40,7 +36,6 @@ class AssignmentRepository(BaseRepository[Assignment]):
                 link=link,
                 due=due,
                 type=type,
-                file_id=file_id,
                 completed=False
             )
 
@@ -57,7 +52,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
             db.query(Assignment)
             .options(
                 joinedload(Assignment.course),
-                joinedload(Assignment.file)
+                joinedload(Assignment.files)
             )
             .filter(Assignment.completed == False)
             .order_by(Assignment.due.asc())

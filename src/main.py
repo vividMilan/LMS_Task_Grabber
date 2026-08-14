@@ -2,14 +2,13 @@ import os
 
 from dotenv import load_dotenv
 
-from database.connection import init_db
+from src.database.connection import init_db, SessionLocal
 
-from automation.auth import login
-from automation.browser import launch_browser
-from automation.task_grabber import grabUpcomingEvents
+from src.automation.auth import login
+from src.automation.browser import launch_browser
+from src.automation.task_grabber import grabUpcomingEvents
 
-from database.connection import get_session
-from database.repositories import assignment_repo, course_repo
+from src.services.sync_service import process_and_save_scraped_assignment
 
 init_db()
 
@@ -25,13 +24,16 @@ def cli_mode():
     print("Running in CLI mode...")
 
     p, browser, page = launch_browser()
+    db = SessionLocal()
     try:
         if login(page, username, password, url):
-            grabUpcomingEvents(page)
+            scraped_assignments = grabUpcomingEvents(page)
+            count = process_and_save_scraped_assignment(db=db, scraped_items=scraped_assignments)
+            print(f"Hello: {count}")
     finally:
         browser.close()
         p.stop()
-
+        db.close()
 
 if __name__ == "__main__":
     cli_mode()

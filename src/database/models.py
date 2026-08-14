@@ -25,18 +25,26 @@ class File(Base):
     __tablename__ = "files"
 
     id: Mapped[int] = Column(Integer, primary_key=True, autoincrement=True)
+
     file_path: Mapped[str] =  Column(String, nullable=False)
+
     file_link: Mapped[str] = Column(String, nullable=False)
+
     course_id: Mapped[str] = mapped_column(
         ForeignKey("courses.id")
     )
 
-    course: Mapped["Course"] = relationship(
+    assignment_id: Mapped[str | None] = mapped_column(
+        ForeignKey("assignments.id"),
+        nullable=True
+    )
+
+    assignment: Mapped["Assignment"] = relationship(
         back_populates="files"
     )
 
-    assignments: Mapped[list["Assignment"]] = relationship(
-        back_populates="file"
+    course: Mapped["Course"] = relationship(
+        back_populates="files"
     )
 
 
@@ -44,25 +52,26 @@ class Assignment(Base):
     __tablename__ = "assignments"
 
     id: Mapped[str] = Column(String, primary_key=True)
+
     name: Mapped[str] = Column(String, nullable=False)
+
     course_id: Mapped[str] = mapped_column(
         ForeignKey("courses.id")
     )
-    file_id: Mapped[int] = mapped_column(
-        ForeignKey("files.id"),
-        nullable=True
-    )
-    completed: Mapped[bool] = Column(Integer, default=0)
-    type: Mapped[str] = Column(String, nullable=True)
-    due: Mapped[datetime] = Column(DateTime, nullable=False)
-    link: Mapped[str] = Column(String, nullable=False)
 
+    completed: Mapped[bool] = Column(Integer, default=0)
+
+    type: Mapped[str] = Column(String, nullable=True)
+
+    due: Mapped[datetime] = Column(DateTime, nullable=False)
+
+    link: Mapped[str] = Column(String, nullable=False)
 
     course: Mapped["Course"] = relationship(
         back_populates="assignments"
     )
 
-    file: Mapped["File"] = relationship(
-        back_populates="assignments"
+    files: Mapped[list["File"]] = relationship(
+        back_populates="assignment"
     )
 

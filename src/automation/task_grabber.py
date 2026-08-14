@@ -1,8 +1,11 @@
 from datetime import datetime
 
-from utils.date_parser import parse_due_date
-from utils.download_file import download_file
-from utils.assignment_type import assignment_type
+from src.automation.schemas import ScrappedAssignment
+
+from src.utils.date_parser import parse_due_date
+from src.utils.download_file import download_file
+from src.utils.assignment_type import assignment_type
+from src.utils.extract_course import extract_course
 
 def grabUpcomingEvents(page):
     today = datetime.now().date()
@@ -27,8 +30,8 @@ def grabUpcomingEvents(page):
             .strip()
         )
 
-        if int(link_date) < today.day:
-            continue
+        # if int(link_date) < today.day:
+        #     continue
 
         if link.get_attribute("href") not in day_cell_links:
             day_cell_links.append(link.get_attribute("href"))
@@ -40,11 +43,8 @@ def grabUpcomingEvents(page):
 
         if due_div.count() == 0:
             continue
-        
-        course = page.locator("h1").first.inner_text().strip()
 
-        courseCode = course.split(" ", 1)[0]
-        courseName = course.split(" ", 1)[1]
+        courseCode, courseName = extract_course(page)
 
         heading = page.locator("h2").first.inner_text().strip()
 
@@ -62,36 +62,33 @@ def grabUpcomingEvents(page):
 
                 save_dir = f"downloads/{courseCode}"
                 local_path = download_file(page, file_uri, output_dir=save_dir)
-                
-                if local_path:
-                    assignment["Question Material"] = local_path
 
-                assignment = {
-                    "courseCode": courseCode,
-                    "courseName": courseName,
-                    "heading": heading,
-                    "link": link,
-                    "dueDate": parse_due_date(raw_text),
-                    "Question Material": local_path or file_uri,
-                    "type": type,
-                }
 
-            assignments.append(assignment)
+                scraped_task = ScrappedAssignment(
+                    course_id=courseCode,
+                    course_name=courseName,
+                    heading=heading,
+                    link=link,
+                    due_date=parse_due_date(raw_text),
+                    file_path=local_path,
+                    file_link=file_uri,
+                    type=type
+                )
+
+            assignments.append(scraped_task)
             
         else:
-            assignment = {
-                "courseCode": courseCode,
-                "courseName": courseName,
-                "heading": heading,
-                "link": link,
-                "dueDate": parse_due_date(raw_text),
-                "Question Material": None,
-                "type": type,
-            }
+            scraped_task = ScrappedAssignment(
+                course_id=courseCode,
+                course_name=courseName,
+                heading=heading,
+                link=link,
+                due_date=parse_due_date(raw_text),
+                file_path=None,
+                file_link=None,
+                type=type
+            )
 
-            assignments.append(assignment)
-
-
-    print(f"[*] Total assignments found: {len(assignments)}")
+            assignments.append(scraped_task)
 
     return assignments
