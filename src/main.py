@@ -2,9 +2,16 @@ import os
 
 from dotenv import load_dotenv
 
+from database.connection import init_db
+
 from automation.auth import login
 from automation.browser import launch_browser
 from automation.task_grabber import grabUpcomingEvents
+
+from database.connection import get_session
+from database.repositories import assignment_repo, course_repo
+
+init_db()
 
 # Load Environment Variables
 load_dotenv()

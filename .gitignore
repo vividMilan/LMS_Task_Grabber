@@ -23,4 +23,10 @@ __pycache__/
 
 *.db
 
-src/assignments.db
+# Local SQLite Database
+*.db
+*.sqlite3
+
+# IDE & Editor settings
+.vscode/
+.idea/

@@ -94,11 +94,4 @@ def grabUpcomingEvents(page):
 
     print(f"[*] Total assignments found: {len(assignments)}")
 
-    for assignment in assignments:
-        print(
-            f"========================{assignment['courseCode']} - {assignment['heading']}========================\n"
-            f"Due Date: {assignment['dueDate']}\n"
-            f"Link: {assignment['link']}\n"
-            f"Question Material: {assignment['Question Material']}\n"
-            f"Type: {assignment['type']}\n"
-        )
+    return assignments
