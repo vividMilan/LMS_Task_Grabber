@@ -1,7 +1,11 @@
 from typing import List
 from sqlalchemy.orm import Session
-from src.database.repositories import assignment_repo, course_repo, file_repo
+
+from src.database.repositories import assignment_repo, course_repo, file_repo, viva_slot_repo
+
 from src.automation.schemas import ScrappedAssignment
+
+
 import uuid
 
 
@@ -34,6 +38,16 @@ def process_and_save_scraped_assignment(
                 name=item.heading,
                 due=item.due_date,
             )
+
+            if item.start_time and item.end_time:
+                viva_slot_repo.upsert_viva_slot(
+                    db=db,
+                    start_time=item.start_time,
+                    end_time=item.end_time,
+                    assignment_id=assignment_id
+                )
+
+                print("Created Viva Slot")
 
             if is_created:
                 stats["created"] += 1
