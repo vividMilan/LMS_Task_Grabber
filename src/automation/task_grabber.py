@@ -30,8 +30,8 @@ def grabUpcomingEvents(page):
             .strip()
         )
 
-        # if int(link_date) < today.day:
-        #     continue
+        if int(link_date) < today.day:
+            continue
 
         if link.get_attribute("href") not in day_cell_links:
             day_cell_links.append(link.get_attribute("href"))
@@ -47,6 +47,15 @@ def grabUpcomingEvents(page):
         courseCode, courseName = extract_course(page)
 
         heading = page.locator("h2").first.inner_text().strip()
+
+        # Skip if submitted
+        cell = page.locator("table td").first
+
+        if cell.count() > 0:
+            submitted = cell.inner_text().strip().lower()
+            if "submitted" in submitted:
+                print(f"Skipped for {heading}: {link}")
+                continue
 
         type = assignment_type(heading)
 
