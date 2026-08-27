@@ -1,5 +1,6 @@
 from src.database.models import AssignmentType
 
+
 def assignment_type(heading: str) -> AssignmentType | None:
     heading_lower = heading.lower()
     if "viva" in heading_lower or "slot" in heading_lower:

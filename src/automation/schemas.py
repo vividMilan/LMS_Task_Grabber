@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
+
 
 @dataclass
 class ScrappedAssignment:
     course_id: str = ""
     course_name: str = ""
     heading: str = ""
-    due_date: Optional[datetime] = None
+    due_date: datetime | None = None
     link: str = ""
-    file_path: Optional[str] = None
-    file_link: Optional[str] = None
-    type: Optional[str] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    file_path: str | None = None
+    file_link: str | None = None
+    type: str | None = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None

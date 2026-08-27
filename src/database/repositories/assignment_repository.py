@@ -1,8 +1,11 @@
-from .base_repository import BaseRepository
-from ..models import Assignment
-from typing import Optional, Sequence
-from sqlalchemy.orm import Session, joinedload
+from collections.abc import Sequence
 from datetime import datetime
+
+from sqlalchemy.orm import Session, joinedload
+
+from ..models import Assignment
+from .base_repository import BaseRepository
+
 
 class AssignmentRepository(BaseRepository[Assignment]):
     def __init__(self):
@@ -16,7 +19,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
         course_id: str,
         due: datetime,
         link: str,
-        type: Optional[str] = None,
+        type: str | None = None,
     ) -> tuple[Assignment, bool]:
         """Inserts or updates an assignment record from scraped task data."""
 
@@ -38,7 +41,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
                 link=link,
                 due=due,
                 type=type,
-                completed=False
+                completed=False,
             )
 
             db.add(assignment)
@@ -47,15 +50,11 @@ class AssignmentRepository(BaseRepository[Assignment]):
         db.refresh(assignment)
         return assignment, True
 
-
     def get_upcoming(self, db: Session) -> Sequence[Assignment]:
         """Returns incomplete tasks sorted by due date (eagerly loading course and file)."""
         return (
             db.query(Assignment)
-            .options(
-                joinedload(Assignment.course),
-                joinedload(Assignment.files)
-            )
+            .options(joinedload(Assignment.course), joinedload(Assignment.files))
             .filter(Assignment.completed == False)
             .order_by(Assignment.due.asc())
             .all()
@@ -72,5 +71,6 @@ class AssignmentRepository(BaseRepository[Assignment]):
             return True
 
         return False
+
 
 assignment_repo = AssignmentRepository()

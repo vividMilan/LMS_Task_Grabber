@@ -1,13 +1,16 @@
-from .base_repository import BaseRepository
 from sqlalchemy.orm import Session
+
 from ..models import Course
+from .base_repository import BaseRepository
+
 
 class CourseRepository(BaseRepository[Course]):
-
     def __init__(self):
         super().__init__(Course)
 
-    def upsert_course(self, db: Session, course_id: str, name: str, excluded: bool = False) -> tuple[Course, bool]:
+    def upsert_course(
+        self, db: Session, course_id: str, name: str, excluded: bool = False
+    ) -> tuple[Course, bool]:
         """Creates a course if missing, or updates its name if present."""
         course = self.get_by_id(db, course_id)
 
@@ -16,7 +19,7 @@ class CourseRepository(BaseRepository[Course]):
                 course.name = name
             return course, False
         else:
-            course = Course(id=course_id, name = name, excluded = excluded)
+            course = Course(id=course_id, name=name, excluded=excluded)
             db.add(course)
 
         db.commit()
@@ -33,5 +36,6 @@ class CourseRepository(BaseRepository[Course]):
             return True
 
         return False
+
 
 course_repo = CourseRepository()

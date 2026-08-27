@@ -1,15 +1,20 @@
-from typing import TypeVar, Generic, Type, Any, Optional, Sequence
+from collections.abc import Sequence
+from typing import Any, Generic, TypeVar
+
 from sqlalchemy.orm import Session
+
 from ..models import Base
 
 ModelType = TypeVar("ModelType", bound=Base)
 
+
 class BaseRepository(Generic[ModelType]):
     """Generic CRUD repository class for SQLAlchemy models."""
-    def __init__(self, model: Type[ModelType]):
+
+    def __init__(self, model: type[ModelType]):
         self.model = model
 
-    def get_by_id(self, db: Session, id_val: Any) -> Optional[ModelType]:
+    def get_by_id(self, db: Session, id_val: Any) -> ModelType | None:
         """Fetch a single record by its primary key."""
         return db.query(self.model).filter(self.model.id == id_val).first()
 
@@ -28,7 +33,7 @@ class BaseRepository(Generic[ModelType]):
     def delete(self, db: Session, id_val: Any) -> bool:
         """Delete a record by primary key."""
         instance = self.get_by_id(db, id_val)
-        
+
         if instance:
             db.delete(instance)
             db.commit()

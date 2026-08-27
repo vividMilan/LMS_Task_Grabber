@@ -1,8 +1,6 @@
 from datetime import datetime, timedelta, timezone
-from src.database.repositories import assignment_repo, course_repo, file_repo
-from src.database.models import Course, File, Assignment
 
-from datetime import datetime
+from src.database.repositories import assignment_repo, course_repo, file_repo
 
 # ==========================================
 # 1. COURSE REPOSITORY TESTS

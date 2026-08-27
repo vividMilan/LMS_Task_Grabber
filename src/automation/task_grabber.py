@@ -1,16 +1,18 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from src.automation.schemas import ScrappedAssignment
-
-from src.utils.date_parser import parse_due_date
-from src.utils.download_file import download_file
+from src.database.models import AssignmentType
 from src.utils.assignment_type import assignment_type
+from src.utils.date_parser import parse_due_date, parse_viva_time
+from src.utils.download_file import download_file
 from src.utils.extract_course import extract_course
 
-from src.database.models import AssignmentType
+local_timezone = ZoneInfo("Asia/Colombo")
+
 
 def grabUpcomingEvents(page):
-    today = datetime.now().date()
+    today = datetime.now(local_timezone).date()
 
     day_cell_links = []
 
@@ -32,8 +34,8 @@ def grabUpcomingEvents(page):
             .strip()
         )
 
-        # if int(link_date) < today.day:
-        #     continue
+        if int(link_date) < today.day:
+            continue
 
         if link.get_attribute("href") not in day_cell_links:
             day_cell_links.append(link.get_attribute("href"))
@@ -63,9 +65,9 @@ def grabUpcomingEvents(page):
 
         scraped_task = ScrappedAssignment()
 
-        if type == AssignmentType.VIVA_SLOT:
-            start_time = datetime.now() + timedelta(days=1)
-            end_time = datetime.now() + timedelta(days=4)
+        # if type == AssignmentType.VIVA_SLOT:
+        #     start_time = datetime.now().replace(tzinfo=local_timezone) + timedelta(days=1)
+        #     end_time = datetime.now().replace(tzinfo=local_timezone) + timedelta(days=4)
 
         raw_text = due_div.inner_text()
 
@@ -80,19 +82,20 @@ def grabUpcomingEvents(page):
                 save_dir = f"downloads/{courseCode}"
                 local_path = download_file(page, file_uri, output_dir=save_dir)
 
-
-                scraped_task.file_link=file_uri
-                scraped_task.file_path=local_path
+                scraped_task.file_link = file_uri
+                scraped_task.file_path = local_path
 
         if type == AssignmentType.VIVA_SLOT:
             print("Viva Slot!!!!")
-            start_time = datetime.now() + timedelta(days=1)
-            end_time = datetime.now() + timedelta(days=4)
+            your_selection = (
+                page.locator("xpath=//div[@id='yourselection']").inner_text().strip()
+            )
+            viva_times = parse_viva_time(your_selection)
 
-            scraped_task.start_time = start_time
-            scraped_task.end_time = end_time
-
-            # print(f"start: {scraped_task.start_time}, end: {scraped_task.end_time}")
+            if viva_times:
+                scraped_task.start_time, scraped_task.end_time = viva_times
+            else:
+                print("[!] Unable to get viva selections, please visit the LMS")
 
         scraped_task.course_id = courseCode
         scraped_task.course_name = courseName
@@ -102,18 +105,5 @@ def grabUpcomingEvents(page):
         scraped_task.type = type
 
         assignments.append(scraped_task)
-
-        print("======================== aSSIGNMENT =======================")
-        print(f"course_id: {scraped_task.course_id}")
-        print(f"course_name: {scraped_task.course_name}")
-        print(f"heading: {scraped_task.heading}")
-        print(f"link: {scraped_task.link}")
-        print(f"due_date: {scraped_task.due_date}")
-        print(f"type: {scraped_task.type}")
-        print(f"start_time: {scraped_task.start_time}")
-        print(f"end_time: {scraped_task.end_time}")
-        print(f"file: {scraped_task.file_path}")
-        print(f"file_link: {scraped_task.file_link}")
-
 
     return assignments

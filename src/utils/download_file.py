@@ -2,6 +2,8 @@ import os
 from pathlib import Path
 from urllib.parse import unquote
 
+from playwright.sync_api import Error as PlaywrightError
+
 
 def download_file(page, file_url: str, output_dir: str = "downloads") -> str | None:
     """Downloads a file using Playwright's authenticated browser session.
@@ -26,7 +28,7 @@ def download_file(page, file_url: str, output_dir: str = "downloads") -> str | N
             return str(file_path)
 
         print(f"[!] Failed to download. HTTP status: {response.status}")
-    except Exception as e:
+    except PlaywrightError as e:
         print(f"[!] Error downloading {file_url}: {e}")
 
     return None
