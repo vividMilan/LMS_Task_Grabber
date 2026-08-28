@@ -1,12 +1,12 @@
+import os
+
+from dotenv import load_dotenv
+
 from src.automation.auth import login
 from src.automation.browser import launch_browser
 from src.automation.task_grabber import grabUpcomingEvents
-from src.services.sync_service import process_and_save_scraped_assignment
-
 from src.database.connection import SessionLocal
-
-from dotenv import load_dotenv
-import os
+from src.services.sync_service import process_and_save_scraped_assignment
 
 load_dotenv()
 username = os.getenv("LMS_USERNAME")

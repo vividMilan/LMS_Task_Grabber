@@ -3,8 +3,7 @@ import sys
 
 from PyQt6.QtWidgets import QApplication
 
-
-from src.database.connection import SessionLocal, init_db
+from src.database.connection import init_db
 from src.ui.main_window import MainWindow
 
 init_db()

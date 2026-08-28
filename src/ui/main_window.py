@@ -1,8 +1,19 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QFrame, QHBoxLayout, QStackedWidget, QLabel
-from PyQt6.QtCore import QSize, QThread, pyqtSignal, Qt
 import qtawesome as qta
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QMainWindow,
+    QPushButton,
+    QStackedWidget,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.automation.scrape_tasks import scrape_tasks
+from src.ui.components.spinner import Spinner
+
 
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
@@ -66,7 +77,13 @@ class MainWindow(QMainWindow):
         self.btn_sync = QPushButton("Sync Task")
         self.btn_sync.setIcon(qta.icon("fa5s.sync-alt", color="#fffff"))
         self.btn_sync.clicked.connect(self.start_sync_process)
+
+        self.spinner = Spinner(self, size=24, width=3)
+        self.spinner.hide()
+
+        dash_layout.addWidget(self.spinner)
         dash_layout.addWidget(self.btn_sync)
+        
 
         page_tasks = QWidget()
         page_layout = QVBoxLayout(page_tasks)
@@ -98,8 +115,16 @@ class MainWindow(QMainWindow):
 
         self.worker = ScrapperWorker()
         self.worker.finished_signal.connect(self.on_sync_finished)
+
+        self.spinner.start()
         self.worker.start()
 
     def on_sync_finished(self, success: bool, message: str):
         self.btn_sync.setDisabled(False)
-        self.btn_sync.setText("Sync Tasks")
+        self.spinner.stop()
+
+
+        if success:
+            self.btn_sync.setText(f"Sucess: {message}")
+        else:
+            self.btn_sync.setText(f"Failed: {message}")
