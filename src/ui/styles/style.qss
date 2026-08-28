@@ -1,0 +1,31 @@
+/* Sidebar Container */
+QFrame#sidebar {
+    background-color: #ebeae8;
+    border-right: 1px solid #ee5e0b;
+    padding: 10px;
+    min-width: 60px;
+    max-width: 60px;
+}
+
+/* Sidebar Icon Buttons */
+QFrame#sidebar QPushButton {
+    border: 2px solid #ee5e0b;
+    border-radius: 8px;
+    padding: 8px;
+    background-color: #ffdcc8;
+}
+
+/* Hover state: Light orange background */
+QFrame#sidebar QPushButton:hover {
+    background-color: #fde8dc;
+}
+
+/* Checked state: Solid orange background (Icon turns white automatically) */
+QFrame#sidebar QPushButton:checked {
+    background-color: #ee5e0b;
+}
+
+/* Hovering while checked */
+QFrame#sidebar QPushButton:checked:hover {
+    background-color: #d65208;
+}

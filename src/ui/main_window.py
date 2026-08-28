@@ -1,5 +1,5 @@
 import qtawesome as qta
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
+from PyQt6.QtCore import Qt, QThread, pyqtSignal, QSize
 from PyQt6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -14,6 +14,8 @@ from PyQt6.QtWidgets import (
 from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.spinner import Spinner
 
+INACTIVE_ICON_COLOR = "#ee5e0b"  # Default orange icon
+ACTIVE_ICON_COLOR = "#ffffff"    # White icon when checked/hovered
 
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
@@ -42,19 +44,48 @@ class MainWindow(QMainWindow):
         # sidebar container
 
         sidebar = QFrame()
-        sidebar.setObjectName("Sidebar")
-        sidebar.setFixedWidth(200)
+        sidebar.setObjectName("sidebar")
 
         sidebar_layout = QVBoxLayout(sidebar)
         sidebar_layout.setContentsMargins(0, 0, 0, 0)
-        sidebar_layout.setSpacing(10)
+        sidebar_layout.setSpacing(6)
         sidebar_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        self.btn_dashboard = QPushButton("Dashboard")
-        self.btn_tasks = QPushButton("Tasks")
-        self.btn_settings = QPushButton("Settings")
+        home_icon = qta.icon(
+            "ei.home",
+            color=INACTIVE_ICON_COLOR,
+            color_active=ACTIVE_ICON_COLOR,
+            color_selected=ACTIVE_ICON_COLOR
+        )
 
-        for btn in (self.btn_dashboard, self.btn_tasks, self.btn_settings):
+        calender_icon = qta.icon(
+            "fa5s.calendar-alt",
+            color=INACTIVE_ICON_COLOR,
+            color_active=ACTIVE_ICON_COLOR,
+            color_selected=ACTIVE_ICON_COLOR
+        )
+
+        tasks_icon = qta.icon(
+            "ri.todo-fill", 
+            color=INACTIVE_ICON_COLOR,
+            color_active=ACTIVE_ICON_COLOR,
+            color_selected=ACTIVE_ICON_COLOR
+        )
+
+        settings_icon = qta.icon(
+            "ph.gear-fill",  
+            color=INACTIVE_ICON_COLOR,
+            color_active=ACTIVE_ICON_COLOR,
+            color_selected=ACTIVE_ICON_COLOR
+        )
+
+        self.btn_dashboard = QPushButton(home_icon, "")
+        self.btn_tasks = QPushButton(tasks_icon, "")
+        self.btn_calender = QPushButton(calender_icon, "")
+        self.btn_settings = QPushButton(settings_icon, "")
+
+
+        for btn in (self.btn_dashboard, self.btn_tasks, self.btn_calender, self.btn_settings):
             btn.setCheckable(True)
             sidebar_layout.addWidget(btn)
 
@@ -62,7 +93,8 @@ class MainWindow(QMainWindow):
         # Button group event binding
         self.btn_dashboard.clicked.connect(lambda: self.switch_page(0))
         self.btn_tasks.clicked.connect(lambda: self.switch_page(1))
-        self.btn_settings.clicked.connect(lambda: self.switch_page(2))
+        self.btn_calender.clicked.connect(lambda: self.switch_page(2))
+        self.btn_settings.clicked.connect(lambda: self.switch_page(3))
 
         self.btn_dashboard.setChecked(True)
 
@@ -89,6 +121,10 @@ class MainWindow(QMainWindow):
         page_layout = QVBoxLayout(page_tasks)
         page_layout.addWidget(QLabel("Tasks View"))
 
+        page_calender = QWidget()
+        settings_layout = QVBoxLayout(page_calender)
+        settings_layout.addWidget(QLabel("Calender View"))
+
         page_settings = QWidget()
         settings_layout = QVBoxLayout(page_settings)
         settings_layout.addWidget(QLabel("Settings View"))
@@ -96,6 +132,7 @@ class MainWindow(QMainWindow):
         # add to the stack
         self.content_stack.addWidget(page_dashboard)
         self.content_stack.addWidget(page_tasks)
+        self.content_stack.addWidget(page_calender)
         self.content_stack.addWidget(page_settings)
 
         # add to main layout & apply styles
@@ -106,12 +143,11 @@ class MainWindow(QMainWindow):
         self.content_stack.setCurrentIndex(index)
         self.btn_dashboard.setChecked(index == 0)
         self.btn_tasks.setChecked(index == 1)
-        self.btn_settings.setChecked(index == 2)
+        self.btn_calender.setChecked(index == 2)
+        self.btn_settings.setChecked(index == 3)
 
     def start_sync_process(self):
         self.btn_sync.setDisabled(True)
-        self.btn_sync.setText("Syncing...")
-
 
         self.worker = ScrapperWorker()
         self.worker.finished_signal.connect(self.on_sync_finished)
