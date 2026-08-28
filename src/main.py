@@ -1,12 +1,15 @@
 import os
+import sys
 
 from dotenv import load_dotenv
+from PyQt6.QtWidgets import QApplication
 
 from src.automation.auth import login
 from src.automation.browser import launch_browser
 from src.automation.task_grabber import grabUpcomingEvents
 from src.database.connection import SessionLocal, init_db
 from src.services.sync_service import process_and_save_scraped_assignment
+from src.ui.main_window import MainWindow
 
 init_db()
 
@@ -35,6 +38,14 @@ def cli_mode():
         p.stop()
         db.close()
 
+def gui_mode():
+    app = QApplication(sys.argv)
+    window = MainWindow()
+
+    window.show()
+    sys.exit(app.exec())
+
 
 if __name__ == "__main__":
-    cli_mode()
+    # cli_mode()
+    gui_mode()
