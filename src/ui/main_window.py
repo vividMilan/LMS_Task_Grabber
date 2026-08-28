@@ -1,8 +1,18 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow, QVBoxLayout, QPushButton, QFrame, QHBoxLayout, QStackedWidget, QLabel
-from PyQt6.QtCore import QSize, Qt
+from PyQt6.QtCore import QSize, QThread, pyqtSignal, Qt
 import qtawesome as qta
 
 from src.automation.scrape_tasks import scrape_tasks
+
+class ScrapperWorker(QThread):
+    finished_signal = pyqtSignal(bool, str) # Emits success status and message
+
+    def run(self):
+        try:
+            scrape_tasks()
+            self.finished_signal.emit(True, "Tasks sysnced successfully!")
+        except Exception as e:
+            self.finished_signal.emit(False, str(e))
 
 class MainWindow(QMainWindow):
 
@@ -55,7 +65,7 @@ class MainWindow(QMainWindow):
 
         self.btn_sync = QPushButton("Sync Task")
         self.btn_sync.setIcon(qta.icon("fa5s.sync-alt", color="#fffff"))
-        self.btn_sync.clicked.connect(self.scrape_tasks)
+        self.btn_sync.clicked.connect(self.start_sync_process)
         dash_layout.addWidget(self.btn_sync)
 
         page_tasks = QWidget()
@@ -81,6 +91,15 @@ class MainWindow(QMainWindow):
         self.btn_tasks.setChecked(index == 1)
         self.btn_settings.setChecked(index == 2)
 
-    def scrape_tasks(self):
-        print("starting scraping....")
-        scrape_tasks()
+    def start_sync_process(self):
+        self.btn_sync.setDisabled(True)
+        self.btn_sync.setText("Syncing...")
+
+
+        self.worker = ScrapperWorker()
+        self.worker.finished_signal.connect(self.on_sync_finished)
+        self.worker.start()
+
+    def on_sync_finished(self, success: bool, message: str):
+        self.btn_sync.setDisabled(False)
+        self.btn_sync.setText("Sync Tasks")
