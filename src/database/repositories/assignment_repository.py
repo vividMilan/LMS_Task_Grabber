@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session, joinedload
 from ..models import Assignment
 from .base_repository import BaseRepository
 
+from typing import List, Optional
+
 
 class AssignmentRepository(BaseRepository[Assignment]):
     def __init__(self):
@@ -19,7 +21,8 @@ class AssignmentRepository(BaseRepository[Assignment]):
         course_id: str,
         due: datetime,
         link: str,
-        type: str | None = None,
+        type: Optional[str] = None,
+        files: Optional[list] = None
     ) -> tuple[Assignment, bool]:
         """Inserts or updates an assignment record from scraped task data."""
 
@@ -31,6 +34,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
             assignment.link = link
             assignment.type = type
             assignment.due = due
+            assignment.files = files
 
             return assignment, False
         else:

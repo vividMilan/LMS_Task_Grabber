@@ -37,6 +37,7 @@ def process_and_save_scraped_assignment(
                 course_id=item.course_id,
                 name=item.heading,
                 due=item.due_date,
+                files=item.files
             )
 
             if item.start_time and item.end_time:

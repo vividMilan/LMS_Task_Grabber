@@ -1,7 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from src.automation.schemas import ScrappedAssignment
+from src.automation.schemas import ScrappedAssignment, ScrapedFile
 from src.database.models import AssignmentType
 from src.utils.assignment_type import assignment_type
 from src.utils.date_parser import parse_due_date, parse_viva_time
@@ -12,6 +12,7 @@ local_timezone = ZoneInfo("Asia/Colombo")
 
 
 def grabUpcomingEvents(page):
+
     today = datetime.now(local_timezone).date()
 
     day_cell_links = []
@@ -37,8 +38,12 @@ def grabUpcomingEvents(page):
         if int(link_date) < today.day:
             continue
 
-        if link.get_attribute("href") not in day_cell_links:
-            day_cell_links.append(link.get_attribute("href"))
+        # Add if the link is not in the array
+
+        href = link.get_attribute("href")
+
+        if href and href not in day_cell_links:
+            day_cell_links.append(href)
 
     for link in day_cell_links:
         page.goto(link, wait_until="domcontentloaded")
@@ -54,7 +59,6 @@ def grabUpcomingEvents(page):
 
         # Skip if submitted
         cell = page.locator("table td").first
-
         if cell.count() > 0:
             submitted = cell.inner_text().strip().lower()
             if "submitted" in submitted:
@@ -65,28 +69,38 @@ def grabUpcomingEvents(page):
 
         scraped_task = ScrappedAssignment()
 
-        # if type == AssignmentType.VIVA_SLOT:
-        #     start_time = datetime.now().replace(tzinfo=local_timezone) + timedelta(days=1)
-        #     end_time = datetime.now().replace(tzinfo=local_timezone) + timedelta(days=4)
+        raw_due = due_div.inner_text()
 
-        raw_text = due_div.inner_text()
+        file_locators = page.locator(
+            "a[href*='pdf'], "
+            "a[href*='xls'], "
+            "a[href*='xlsx'], "
+            "a[href*='doc'], "
+            "a[href*='docx'], "
+        )
 
-        question_files = page.locator("a[href*='pdf']").all()
+        question_files = file_locators.all()
+        scraped_files = []
 
         has_file_upload = len(question_files) > 0
 
         if has_file_upload:
             for question_file in question_files:
-                file_uri = question_file.get_attribute("href")
+                file_link = question_file.get_attribute("href")
 
                 save_dir = f"downloads/{courseCode}"
-                local_path = download_file(page, file_uri, output_dir=save_dir)
+                local_path = download_file(page, file_link, output_dir=save_dir)
 
-                scraped_task.file_link = file_uri
-                scraped_task.file_path = local_path
+                scraped_files.append(
+                    ScrapedFile(
+                        file_link=file_link,
+                        file_path=local_path
+                    )
+                )
+
+                scraped_task.files = scraped_files
 
         if type == AssignmentType.VIVA_SLOT:
-            print("Viva Slot!!!!")
             your_selection = (
                 page.locator("xpath=//div[@id='yourselection']").inner_text().strip()
             )
@@ -101,7 +115,7 @@ def grabUpcomingEvents(page):
         scraped_task.course_name = courseName
         scraped_task.heading = heading
         scraped_task.link = link
-        scraped_task.due_date = parse_due_date(raw_text)
+        scraped_task.due_date = parse_due_date(raw_due)
         scraped_task.type = type
 
         assignments.append(scraped_task)
