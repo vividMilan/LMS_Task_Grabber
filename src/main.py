@@ -1,14 +1,12 @@
 
 import sys
+from pathlib import Path
 
+from PyQt6.QtCore import QFileSystemWatcher
 from PyQt6.QtWidgets import QApplication
 
 from src.database.connection import init_db
 from src.ui.main_window import MainWindow
-from pathlib import Path
-from PyQt6.QtCore import QFileSystemWatcher
-from PyQt6.QtWidgets import QApplication
-
 
 init_db()
 
@@ -34,7 +32,7 @@ class QSSWatcher:
 
 def gui_mode():
     app = QApplication(sys.argv)
-    qss_watcher = QSSWatcher(app, "ui/styles/style.qss")
+    _qss_watcher = QSSWatcher(app, "ui/styles/style.qss")
     window = MainWindow()
 
     window.show()

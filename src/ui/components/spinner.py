@@ -1,6 +1,6 @@
 
+from PyQt6.QtCore import QRectF, Qt, QTimer
 from PyQt6.QtGui import QColor, QPainter, QPen
-from PyQt6.QtCore import QRectF, QTimer, Qt
 from PyQt6.QtWidgets import (
     QWidget,
 )
