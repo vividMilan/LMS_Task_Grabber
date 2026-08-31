@@ -1,24 +1,31 @@
-from  PyQt6.QtWidgets import QLineEdit, QWidget, QHBoxLayout, QLabel
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget
+from PyQt6.QtCore import Qt
+
+import qtawesome as qta
+
 
 class SearchBar(QWidget):
     def __init__(self, placeholder: str = "Search...", parent=None):
         super().__init__(parent)
-        self.setObjectName("searchBar")
+        self.setObjectName("searchBarWidget")
         self._init_ui(placeholder)
 
 
     def _init_ui(self, placeholder: str):
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(6, 2, 6, 2)
-        layout.setSpacing(6)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        # Embed Search Icon
+        input = QLineEdit()
+        input.setContentsMargins(0, 0, 0, 0)
+        input.setObjectName("searchInput")
+        input.setPlaceholderText(placeholder)
+        input.setClearButtonEnabled(True)
 
-        self.icon_label = QLabel()
-        layout.addWidget(self.icon_label)
+        # Add magnifying glass icon on the left on QLine
+        search_icon = qta.icon("mdi.magnify", color="#94A3B8")
+        input.addAction(search_icon, QLineEdit.ActionPosition.LeadingPosition)
 
+        self.setStyleSheet("border-radius: 16px;")
 
-        # Line Input
-        self.input_field = QLineEdit()
-        self.input_field.setPlaceholderText(placeholder)
-        layout.addWidget(self.input_field)
+        layout.addWidget(input)

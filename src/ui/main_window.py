@@ -15,6 +15,7 @@ from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
 from src.ui.views.tasks_view import TasksView
 
+
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
 

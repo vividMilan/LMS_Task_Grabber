@@ -1,5 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QLabel, QHBoxLayout, QFrame, QVBoxLayout
 import qtawesome as qta
+from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
+
 
 class DetailChip(QWidget):
     def __init__(self, content_type: str, content_str: str, parent=None):

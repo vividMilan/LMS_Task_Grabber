@@ -1,10 +1,10 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QLineEdit
+import qtawesome as qta
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from src.ui.components.search_bar import SearchBar
 from src.ui.components.task_card import TaskCard
 
-import qtawesome as qta
 
 class TasksView(QWidget):
     def __init__(
@@ -70,11 +70,12 @@ class TasksView(QWidget):
             due_time="11:59PM",
             course_code="MHZ4532",
             file_count=2,
-            assignment_type="mini_project"
+            assignment_type="viva"
         )
 
         tasks_layout.addWidget(task)
         tasks_layout.addWidget(task2)
+        tasks_layout.addWidget(task3)
 
         
         main_layout.addLayout(header_layout)

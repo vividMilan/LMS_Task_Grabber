@@ -1,12 +1,11 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QFrame
-from typing import Optional
-from PyQt6.QtCore import Qt
 
-import qtawesome as qta
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget, QGraphicsDropShadowEffect
 
 from src.ui.components.assignment_type_badge import assignmentType
-
 from src.ui.components.detail_chip import DetailChip
+from src.ui.styles.shadow_factory import apply_drop_shadow
+
 
 class TaskCard(QWidget):
     def __init__(
@@ -16,13 +15,17 @@ class TaskCard(QWidget):
             due_date: str,
             due_time: str,
             assignment_type: str,
-            file_count: Optional[int] = None,
+            file_count: int | None = None,
             parent=None
         ):
         super().__init__(parent)
         self.setObjectName("taskCard")
 
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
+
+        apply_drop_shadow(self, blur_radius=10, y_offset=4, x_offset=4, opacity=10)
+
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self._init_ui(
             title,
@@ -40,7 +43,7 @@ class TaskCard(QWidget):
             due_date: str,
             due_time: str,
             assignment_type: str,
-            file_count: Optional[int] = None,
+            file_count: int | None = None,
     ):
         task_layout = QVBoxLayout(self)
         task_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -80,3 +83,5 @@ class TaskCard(QWidget):
 
         task_layout.addLayout(heading_layout)
         task_layout.addLayout(footer_layout)
+
+    

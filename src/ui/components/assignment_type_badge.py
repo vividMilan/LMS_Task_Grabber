@@ -1,14 +1,14 @@
-from PyQt6.QtWidgets import QWidget, QHBoxLayout, QLabel
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 # Color mapping for assignment types
 TYPE_COLORS = {
-    "tma": "#FF5722",          # Vivid Orange (Warm Accent)
-    "mini_project": "#6366F1", # Indigo / Violet (Cool Purple)
-    "quiz": "#06B6D4",         # Electric Cyan (Light Bright Blue)
-    "viva": "#10B981",         # Emerald Green (Fresh Green)
-    "lab_report": "#EC4899",   # Vibrant Pink / Magenta (Warm Pink)
-    "exam": "#EF4444",         # High-Alert Red (Critical Red)
+    "tma": "#BE4C2A",          # Vivid Orange (Warm Accent)
+    "mini_project": "#3B3DD1", # Indigo / Violet (Cool Purple)
+    "quiz": "#1194AC",         # Electric Cyan (Light Bright Blue)
+    "viva": "#0D8F63",         # Emerald Green (Fresh Green)
+    "lab_report": "#C52073",   # Vibrant Pink / Magenta (Warm Pink)
+    "exam": "#BE1414",         # High-Alert Red (Critical Red)
 }
 
 class assignmentType(QWidget):

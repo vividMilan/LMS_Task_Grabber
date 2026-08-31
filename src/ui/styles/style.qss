@@ -65,22 +65,13 @@ QFrame#sidebar QPushButton:checked:hover {
     font-weight: bold;
 }
 
-/* #assignmentType {
-    padding: 4px 8px;
-    border-radius: 8px;
-    color: "#ffffff"
-} */
 
-/* Header Row Border Container */
-/* #taskCard QFrame#headerFrame {
-    border: 1px solid #ee5e0b;
-    border-radius: 6px;
-    background-color: transparent;
-} */
+#searchBarWidget #searchInput {
+    padding: 8px 0px;
+    background-color: #cfcdcd;
+}
 
-/* Footer Row Border Container */
-/* #taskCard QFrame#footerFrame {
-    border: 1px solid #2a3acc;
-    border-radius: 6px;
-    background-color: transparent;
-} */
+#searchBarWidget #searchInput:focus,
+#searchBarWidget #searchInput:hover {
+    border: 1px solid #e75907;
+}
