@@ -1,6 +1,11 @@
 
 from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget, QGraphicsDropShadowEffect
+from PyQt6.QtWidgets import (
+    QHBoxLayout,
+    QLabel,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.ui.components.assignment_type_badge import assignmentType
 from src.ui.components.detail_chip import DetailChip

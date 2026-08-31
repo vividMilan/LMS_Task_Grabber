@@ -1,6 +1,6 @@
 /* Sidebar Container */
 QFrame#sidebar {
-    background-color: #ebeae8;
+    background-color: #2e2e2e;
     border-right: 1px solid #ee5e0b;
     padding: 10px;
     min-width: 60px;
@@ -72,6 +72,7 @@ QFrame#sidebar QPushButton:checked:hover {
 }
 
 #searchBarWidget #searchInput:focus,
-#searchBarWidget #searchInput:hover {
+#searchBarWidget #searchInput: {
     border: 1px solid #e75907;
 }
+

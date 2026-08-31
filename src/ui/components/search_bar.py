@@ -1,7 +1,6 @@
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QLineEdit, QWidget
-from PyQt6.QtCore import Qt
-
 import qtawesome as qta
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QHBoxLayout, QLineEdit, QWidget
 
 
 class SearchBar(QWidget):

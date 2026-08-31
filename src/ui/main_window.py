@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
 from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
+from src.ui.views.calander_view import CalendarView
 from src.ui.views.tasks_view import TasksView
 
 
@@ -65,9 +66,7 @@ class MainWindow(QMainWindow):
 
         page_tasks = TasksView()
 
-        page_calender = QWidget()
-        settings_layout = QVBoxLayout(page_calender)
-        settings_layout.addWidget(QLabel("Calender View"))
+        page_calender = CalendarView()
 
         page_settings = QWidget()
         settings_layout = QVBoxLayout(page_settings)
