@@ -1,7 +1,10 @@
 from PyQt6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel
 from typing import Optional
 from PyQt6.QtCore import Qt
+
 import qtawesome as qta
+
+from src.ui.components.assignment_type_badge import assignmentType
 
 from src.ui.components.detail_chip import DetailChip
 
@@ -12,7 +15,8 @@ class TaskCard(QWidget):
             course_code: str,
             due_date: str,
             due_time: str,
-            file_count: Optional[int] = None, 
+            assignment_type: str,
+            file_count: Optional[int] = None,
             parent=None
         ):
         super().__init__(parent)
@@ -26,6 +30,7 @@ class TaskCard(QWidget):
             due_date=due_date,
             due_time=due_time,
             file_count=file_count,
+            assignment_type=assignment_type,
         )
 
     def _init_ui(
@@ -34,7 +39,8 @@ class TaskCard(QWidget):
             course_code: str,
             due_date: str,
             due_time: str,
-            file_count: Optional[int] = None, 
+            assignment_type: str,
+            file_count: Optional[int] = None,
     ):
         task_layout = QVBoxLayout(self)
 
@@ -45,7 +51,15 @@ class TaskCard(QWidget):
         heading_layout = QHBoxLayout()
         lbl_heading = QLabel(title)
         lbl_heading.setObjectName("headingLabel")
+
+        heading_layout.setContentsMargins(0, 0, 0, 0)
+        heading_layout.setSpacing(0)
         heading_layout.addWidget(lbl_heading)
+
+        assigment_type = assignmentType(assignment_type)
+        heading_layout.addWidget(assigment_type)
+
+        heading_layout.addStretch()
 
         # Assignment Details Footer
         footer_layout = QHBoxLayout()

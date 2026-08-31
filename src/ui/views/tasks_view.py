@@ -7,7 +7,10 @@ from src.ui.components.task_card import TaskCard
 import qtawesome as qta
 
 class TasksView(QWidget):
-    def __init__(self, parent = None):
+    def __init__(
+        self, 
+        parent = None
+    ):
         super().__init__(parent)
         self.setObjectName("taskView")
         self._init_ui()
@@ -45,22 +48,24 @@ class TasksView(QWidget):
 
         # Tasks
         task = TaskCard(
-            title="Assignment Test Name",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432"
-        )
-
-        task = TaskCard(
-            title="Assignment Test Name",
+            title="Database Management – TMA 01",
             due_date="2026/08/12",
             due_time="11:59PM",
             course_code="EEX5432",
-            file_count=2
+            assignment_type="TMA"
+        )
+
+        task2 = TaskCard(
+            title="Applied Statistics – Mini Project",
+            due_date="2026/08/12",
+            due_time="11:59PM",
+            course_code="MHZ4532",
+            file_count=2,
+            assignment_type="Mini Project"
         )
 
         tasks_layout.addWidget(task)
-        tasks_layout.addWidget(task)
+        tasks_layout.addWidget(task2)
 
         
         main_layout.addLayout(header_layout)

@@ -43,7 +43,7 @@ QFrame#sidebar QPushButton:checked:hover {
 }
 
 #chip {
-    background-color: #e75907;
+    background-color: #0B032D;
     border-radius: 16px;
     padding: 4px 10px; /* Standard CSS padding now works directly */
 }
@@ -54,11 +54,18 @@ QFrame#sidebar QPushButton:checked:hover {
 
 #taskCard {
     background-color: #cfcdcd;
-    border-radius: 12px;
+    border-radius: 8px;
     padding: 16px;
 }
 
 #taskCard QLabel#headingLabel {
     font-size: 16px;
     font-weight: bold;
+}
+
+#assignmentType {
+    background-color: "#FF521B";
+    padding: 4px 8px;
+    border-radius: 8px;
+    color: "#ffffff"
 }
