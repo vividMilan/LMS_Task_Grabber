@@ -43,13 +43,15 @@ QFrame#sidebar QPushButton:checked:hover {
 }
 
 #chip {
-    background-color: #0B032D;
-    border-radius: 16px;
-    padding: 4px 10px; /* Standard CSS padding now works directly */
+    background-color: #ffe76920;
+    border-radius: 12px;
+    margin: 0px;
 }
 
 #chip QLabel {
-    color: #ffffff;
+    color: #E2E8F0;
+    font-size: 12px;
+    font-weight: 500;
 }
 
 #taskCard {
@@ -63,9 +65,22 @@ QFrame#sidebar QPushButton:checked:hover {
     font-weight: bold;
 }
 
-#assignmentType {
-    background-color: "#FF521B";
+/* #assignmentType {
     padding: 4px 8px;
     border-radius: 8px;
     color: "#ffffff"
-}
+} */
+
+/* Header Row Border Container */
+/* #taskCard QFrame#headerFrame {
+    border: 1px solid #ee5e0b;
+    border-radius: 6px;
+    background-color: transparent;
+} */
+
+/* Footer Row Border Container */
+/* #taskCard QFrame#footerFrame {
+    border: 1px solid #2a3acc;
+    border-radius: 6px;
+    background-color: transparent;
+} */

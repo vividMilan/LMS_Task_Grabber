@@ -10,6 +10,7 @@ class DetailChip(QWidget):
         # Main layout for the DetailChip widget
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setSpacing(0)
 
         chip = QFrame()
         chip.setObjectName("chip")
