@@ -13,7 +13,7 @@ from PyQt6.QtWidgets import (
 from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
-
+from src.ui.views.tasks_view import TasksView
 
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
@@ -62,9 +62,7 @@ class MainWindow(QMainWindow):
         dash_layout.addWidget(self.btn_sync)
         
 
-        page_tasks = QWidget()
-        page_layout = QVBoxLayout(page_tasks)
-        page_layout.addWidget(QLabel("Tasks View"))
+        page_tasks = TasksView()
 
         page_calender = QWidget()
         settings_layout = QVBoxLayout(page_calender)
