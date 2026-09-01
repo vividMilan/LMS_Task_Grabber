@@ -2,11 +2,9 @@ import qtawesome as qta
 from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtWidgets import (
     QHBoxLayout,
-    QLabel,
     QMainWindow,
     QPushButton,
     QStackedWidget,
-    QVBoxLayout,
     QWidget,
 )
 
@@ -15,6 +13,7 @@ from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
 from src.ui.views.calander_view import CalendarView
 from src.ui.views.dashboard_view import DashboardView
+from src.ui.views.setting_view import SettingsView
 from src.ui.views.tasks_view import TasksView
 
 
@@ -62,10 +61,7 @@ class MainWindow(QMainWindow):
 
         page_calender = CalendarView()
 
-        page_settings = QWidget()
-        settings_layout = QVBoxLayout(page_settings)
-        settings_layout.addWidget(QLabel("Settings View"))
-
+        page_settings = SettingsView()
         # add to the stack
         self.content_stack.addWidget(page_dashboard)
         self.content_stack.addWidget(page_tasks)
