@@ -1,5 +1,12 @@
-from PyQt6.QtWidgets import QCalendarWidget, QHBoxLayout, QVBoxLayout, QWidget, QScrollArea, QFrame
 from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import (
+    QCalendarWidget,
+    QFrame,
+    QHBoxLayout,
+    QScrollArea,
+    QVBoxLayout,
+    QWidget,
+)
 
 from src.ui.components.task_card import TaskCard
 

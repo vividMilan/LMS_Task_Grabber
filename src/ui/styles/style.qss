@@ -71,8 +71,15 @@ QFrame#sidebar QPushButton:checked:hover {
     background-color: #cfcdcd;
 }
 
-#searchBarWidget #searchInput:focus,
-#searchBarWidget #searchInput: {
-    border: 1px solid #e75907;
+#searchBarWidget #searchInput:focus {
+    border: 1px solid #ee5e0b;
+    background-color: #ddd
 }
+
+QFrame#completedFrame {
+    background-color: #d4d4d4;
+    padding: 10px;
+    border-radius: 12px;
+}
+
 

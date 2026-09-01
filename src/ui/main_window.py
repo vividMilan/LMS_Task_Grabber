@@ -14,6 +14,7 @@ from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
 from src.ui.views.calander_view import CalendarView
+from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.tasks_view import TasksView
 
 
@@ -48,10 +49,7 @@ class MainWindow(QMainWindow):
         # Main area (stacked widget)
         self.content_stack = QStackedWidget()
 
-        page_dashboard = QWidget()
-        dash_layout = QVBoxLayout(page_dashboard)
-        dash_layout.addWidget(QLabel("Dashboard View"))
-
+        page_dashboard = DashboardView()
 
         self.btn_sync = QPushButton("Sync Task")
         self.btn_sync.setIcon(qta.icon("fa5s.sync-alt", color="#fffff"))
@@ -59,10 +57,6 @@ class MainWindow(QMainWindow):
 
         self.spinner = Spinner(self, size=24, width=3)
         self.spinner.hide()
-
-        dash_layout.addWidget(self.spinner)
-        dash_layout.addWidget(self.btn_sync)
-        
 
         page_tasks = TasksView()
 
