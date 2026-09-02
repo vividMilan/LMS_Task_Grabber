@@ -8,7 +8,10 @@ from PyQt6.QtWidgets import (
     QStackedWidget,
     QVBoxLayout,
     QWidget,
+    QComboBox,
+    QCheckBox
 )
+
 
 class SettingsView(QWidget):
     def __init__(self, parent=None):
@@ -17,6 +20,28 @@ class SettingsView(QWidget):
         self.init_ui()
 
     def init_ui(self):
+
+        self.setObjectName("settingsView")
+
+        self.setStyleSheet("""
+            QWidget#settingsView {
+                background-color: #F54927;
+                color: #1F2937;
+                font-family: "Segoe UI";
+            }
+
+            QLabel#settingsHeader {
+                font-size: 25px;
+                font-weight: bold;
+                color: #111827;
+            }
+
+            QLabel#settingsSubheader {
+                font-size: 14px;
+                color: #6B7280;
+            }
+        """)
+
         root_layout = QVBoxLayout(self)
 
         # Header
@@ -32,6 +57,7 @@ class SettingsView(QWidget):
 
         # Right Content Stack
         self.content_stack = QStackedWidget()
+
         self.content_stack.addWidget(self._create_general_settings())
         self.content_stack.addWidget(self._create_appearance_settings())
         self.content_stack.addWidget(self._create_notifications_settings())
@@ -43,27 +69,65 @@ class SettingsView(QWidget):
 
     def _create_header(self):
         header_layout = QVBoxLayout()
+
         header = QLabel("Settings")
         subheader = QLabel("Configure your application settings below.")
-        header.setStyleSheet("font-size: 24px; font-weight: bold;")
-        subheader.setStyleSheet("font-size: 16px; color: gray;")
+
+        header.setObjectName("settingsHeader")
+        subheader.setObjectName("settingsSubheader")
+        
         header_layout.addWidget(header)
         header_layout.addWidget(subheader)
+
         return header_layout
 
     def _create_navigation_panel(self):
         frame = QFrame()
         frame.setObjectName("settingsNavigation")
+
+        frame.setStyleSheet("""
+                background-color: #F3F4F6;
+                border: 1px solid #E5E7EB;
+                border-radius: 12px;
+        """)
+
         frame.setFixedWidth(200)
 
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(12, 18, 12, 12)
         layout.setSpacing(10)
 
-        title = QLabel("Settings")
-        layout.addWidget(title)
-
         self.settings_list = QListWidget()
+
+        self.settings_list.setStyleSheet("""
+
+            QListWidget {            
+                background: transparent;
+                border: none;
+                outline: none;
+            }
+
+            QListWidget::item {
+                background: transparent;
+                color: #6b7280;
+                padding: 10px;
+                border-radius: 8px;
+                font-weight: bold;
+            }
+
+            QListWidget::item:hover {
+                background: #FEEFE7;
+                color: #ee5e0b;
+            }
+
+            QListWidget::item:selected {
+                background: #FCD3BB;
+                color: #ee5e0b;
+            }
+
+
+        """)
+
         self.settings_list.setObjectName("settingsList")
 
         # Associate each item with the QStackedWidget page index
@@ -96,7 +160,11 @@ class SettingsView(QWidget):
     def _create_general_settings(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.addWidget(QLabel("General Settings"))
+
+        heading = self._create_card(title="Genaral", description="You can set genaral settings")
+
+        layout.addLayout(heading)
+
         layout.addStretch()
         return widget
 
@@ -110,20 +178,124 @@ class SettingsView(QWidget):
     def _create_notifications_settings(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.addWidget(QLabel("Notifications Settings"))
+
+        heading = self._create_card("Notification", "Change notification settings")
+
+        layout.addLayout(heading)
+
+        notification_input = self._create_combo_box("Start reminding me before ", ["3 Day", "5 Days", "1 Week", "2 Week", "1 Month"])
+
+        layout.addLayout(notification_input)
+        
         layout.addStretch()
         return widget
 
     def _create_automation_settings(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.addWidget(QLabel("Automation Settings"))
+        heading = self._create_card(title="Automation", description="Change scraping and automation preference")
+
+        auto_sync = self._create_checkbox("Run scraping in startup")
+        background = self._create_checkbox("Run scraping in intervals")
+        minimized = self._create_checkbox("Open app minimized in startup")
+
+        layout.addLayout(heading)
+        layout.addWidget(auto_sync)
+        layout.addWidget(background)
+        layout.addWidget(minimized)
+
         layout.addStretch()
         return widget
 
     def _create_theme_settings(self):
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.addWidget(QLabel("Theme Settings"))
+
+        heading = self._create_card(title="Theme", description="Change how the app looks")
+
+        theme_preference = self._create_combo_box("Theme Preference", ["Dark Mode", "Light Mode", "System Preference"])
+
+        accent_color = self._create_combo_box("Accent Color", ["Orange", "Green", "Indigo", "Blue"])
+
+        layout.addLayout(heading)
+
+        layout.addLayout(theme_preference)
+        layout.addLayout(accent_color)
+
         layout.addStretch()
         return widget
+
+    def _create_card(self, title: str, description: str):
+
+        layout = QVBoxLayout()
+
+        title_label = QLabel(title)
+        title_label.setContentsMargins(0, 0, 0, 0)
+        title_label.setStyleSheet("""
+            font-size: 20px;
+            font-weight: bold;
+            color: #111827;
+        """)
+
+        description_label = QLabel(description)
+        description_label.setContentsMargins(0, 0, 0, 0)
+        description_label.setStyleSheet("""
+            font-size: 12px;
+            color: #6B7280;
+        """)
+
+        layout.addWidget(title_label)
+        layout.addWidget(description_label)
+        layout.setSpacing(4)
+
+
+        return layout
+
+    def _create_combo_box(self, label: str, options: list):
+        input_layout = QVBoxLayout()
+        
+        input_label = QLabel(label)
+        
+        input_widget = QComboBox()
+        input_widget.addItems(options)
+        
+        input_layout.addWidget(input_label)
+        input_layout.addWidget(input_widget)
+        input_layout.setAlignment(Qt.AlignmentFlag.AlignHCenter | Qt.AlignmentFlag.AlignLeft)
+        input_layout.setSpacing(4)
+
+        return input_layout
+
+
+    def _create_checkbox(self, label: str):
+        checkbox = QCheckBox(label)
+        
+        checkbox.setStyleSheet("""
+            
+            QCheckBox {
+                spacing: 8px;
+                color: #374151;
+                font-size: 12px;            
+            }
+        
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+        
+                border: 1px solid #D1D5DB;
+        
+                border-radius: 5px;
+        
+                background-color: #FFFFFF;
+            
+            }
+        
+            QCheckBox::indicator:checked {
+                background-color: #ee5e0b;
+                border-color: 
+            }
+            
+        
+        """)
+
+        return checkbox
