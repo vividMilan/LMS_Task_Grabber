@@ -4,50 +4,42 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidg
 
 from src.ui.components.search_bar import SearchBar
 from src.ui.components.task_card import TaskCard
+from src.ui.styles.tokens import COLORS
 
 
 class TasksView(QWidget):
-    def __init__(
-        self, 
-        parent = None
-    ):
+    def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("taskView")
+
         self._init_ui()
 
+        self.update_theme_styles()
 
     def _init_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(16, 16, 16, 16)
         main_layout.setSpacing(16)
 
-        # Header Layout
-
         header_layout = QHBoxLayout()
+        self.title = QLabel("Upcoming Tasks")
 
-        tasks_layout = QVBoxLayout()
-
-        # Heading
-        title = QLabel("Upcoming Tasks")
-        title.setStyleSheet("font-size: 28px; font-weight: bold;")
-
-        # Sync Button
         btn_sync = QPushButton("Sync Tasks")
         btn_sync.setCursor(Qt.CursorShape.PointingHandCursor)
         btn_sync.setObjectName("syncButton")
         btn_sync.setIcon(qta.icon("fa5s.sync-alt", color="#ffffff"))
 
-        header_layout.addWidget(title)
+        header_layout.addWidget(self.title)
         header_layout.addStretch()
         header_layout.addWidget(btn_sync)
 
-        # Search Box
         search_layout = QHBoxLayout()
         search_bar = SearchBar(placeholder="Search.....")
         search_layout.addWidget(search_bar)
 
-        # Tasks
-        task = TaskCard(
+        self.tasks_layout = QVBoxLayout()
+
+        task1 = TaskCard(
             title="Database Management – TMA 01",
             due_date="2026/08/12",
             due_time="11:59PM",
@@ -73,17 +65,19 @@ class TasksView(QWidget):
             assignment_type="viva"
         )
 
-        tasks_layout.addWidget(task)
-        tasks_layout.addWidget(task2)
-        tasks_layout.addWidget(task3)
+        self.tasks_layout.addWidget(task1)
+        self.tasks_layout.addWidget(task2)
+        self.tasks_layout.addWidget(task3)
 
-        
         main_layout.addLayout(header_layout)
         main_layout.addLayout(search_layout)
-        main_layout.addLayout(tasks_layout)
+        main_layout.addLayout(self.tasks_layout)
         main_layout.addStretch()
 
-
-
-
+    def update_theme_styles(self):
+        self.title.setStyleSheet(f"""
+            font-size: 28px; 
+            font-weight: bold;
+            color: {COLORS.text_primary.name()};
+        """)
         

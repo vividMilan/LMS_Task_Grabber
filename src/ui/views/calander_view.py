@@ -9,128 +9,91 @@ from PyQt6.QtWidgets import (
 )
 
 from src.ui.components.task_card import TaskCard
+from src.ui.styles.tokens import COLORS
 
 
 class CalendarView(QWidget):
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
+
         self._init_ui()
+        self.update_theme_styles()
 
     def _init_ui(self):
         layout = QHBoxLayout(self)
 
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-        scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setObjectName("assignmentScrollArea")
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        scroll_content = QWidget()
-
+        self.scroll_content = QWidget()
 
         calender_layout = QVBoxLayout()
-        assignment_layout = QVBoxLayout(scroll_content)
+        assignment_layout = QVBoxLayout(self.scroll_content)
         assignment_layout.setContentsMargins(16, 16, 16, 16)
         assignment_layout.setSpacing(8)
 
         calendar = QCalendarWidget()
-        assignment = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
 
-        assignment2 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment3 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment4 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment5 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment6 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment7 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment8 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment9 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
-
-        assignment10 = TaskCard(
-            title="Database Management – TMA 01",
-            due_date="2026/08/12",
-            due_time="11:59PM",
-            course_code="EEX5432",
-            assignment_type="quiz"
-        )
+        # Add task cards
+        for _ in range(10):
+            assignment_layout.addWidget(
+                TaskCard(
+                    title="Database Management – TMA 01",
+                    due_date="2026/08/12",
+                    due_time="11:59PM",
+                    course_code="EEX5432",
+                    assignment_type="quiz",
+                )
+            )
 
         calender_layout.addWidget(calendar)
         calender_layout.addStretch()
 
-        assignment_layout.addWidget(assignment)
-        assignment_layout.addWidget(assignment2)
-        assignment_layout.addWidget(assignment3)
-        assignment_layout.addWidget(assignment4)
-        assignment_layout.addWidget(assignment5)
-        assignment_layout.addWidget(assignment6)
-        assignment_layout.addWidget(assignment7)
-        assignment_layout.addWidget(assignment8)
-        assignment_layout.addWidget(assignment9)
-        assignment_layout.addWidget(assignment10)
-
         assignment_layout.addStretch()
-        scroll_area.setWidget(scroll_content)
-        
+        self.scroll_area.setWidget(self.scroll_content)
 
         layout.addLayout(calender_layout, 3)
-        layout.addWidget(scroll_area, 7)
+        layout.addWidget(self.scroll_area, 7)
+
+    def update_theme_styles(self):
+
+        self.scroll_area.setStyleSheet(f"""
+            #assignmentScrollArea {{
+                background-color: transparent;
+                border: none;
+            }}
+
+            #assignmentScrollArea > QWidget > QWidget {{
+                background-color: transparent;
+            }}
+
+            #assignmentScrollArea QScrollBar:vertical {{
+                background-color: transparent;
+                width: 8px;
+                margin: 4px 0 4px 0;
+            }}
+
+            #assignmentScrollArea QScrollBar::handle:vertical {{
+                background-color: {COLORS.border.name()};
+                border-radius: 4px;
+                min-height: 40px;
+            }}
+
+            #assignmentScrollArea QScrollBar::handle:vertical:hover {{
+                background-color: {COLORS.text_secondary.name()};
+            }}
+
+            #assignmentScrollArea QScrollBar::add-line:vertical,
+            #assignmentScrollArea QScrollBar::sub-line:vertical {{
+                height: 0px;
+            }}
+
+            #assignmentScrollArea QScrollBar::add-page:vertical,
+            #assignmentScrollArea QScrollBar::sub-page:vertical {{
+                background: transparent;
+            }}
+        """)

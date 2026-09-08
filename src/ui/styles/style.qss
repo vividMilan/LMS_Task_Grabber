@@ -1,35 +1,4 @@
 /* Sidebar Container */
-QFrame#sidebar {
-    background-color: #2e2e2e;
-    border-right: 1px solid #ee5e0b;
-    padding: 10px;
-    min-width: 60px;
-    max-width: 60px;
-}
-
-/* Sidebar Icon Buttons */
-QFrame#sidebar QPushButton {
-    border: 2px solid #ee5e0b;
-    border-radius: 8px;
-    padding: 8px;
-    background-color: #ffdcc8;
-}
-
-/* Hover state: Light orange background */
-QFrame#sidebar QPushButton:hover {
-    background-color: #fde8dc;
-}
-
-/* Checked state: Solid orange background (Icon turns white automatically) */
-QFrame#sidebar QPushButton:checked {
-    background-color: #ee5e0b;
-}
-
-/* Hovering while checked */
-QFrame#sidebar QPushButton:checked:hover {
-    background-color: #d65208;
-}
-
 #taskView QPushButton#syncButton {
     background-color: #f86c1b;
     padding: 6px 20px;
@@ -54,27 +23,6 @@ QFrame#sidebar QPushButton:checked:hover {
     font-weight: 500;
 }
 
-#taskCard {
-    background-color: #cfcdcd;
-    border-radius: 8px;
-    padding: 16px;
-}
-
-#taskCard QLabel#headingLabel {
-    font-size: 16px;
-    font-weight: bold;
-}
-
-
-#searchBarWidget #searchInput {
-    padding: 8px 0px;
-    background-color: #cfcdcd;
-}
-
-#searchBarWidget #searchInput:focus {
-    border: 1px solid #ee5e0b;
-    background-color: #ddd
-}
 
 QFrame#completedFrame {
     background-color: #d4d4d4;

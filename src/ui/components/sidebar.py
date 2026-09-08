@@ -2,6 +2,8 @@ import qtawesome as qta
 from PyQt6.QtCore import QSize, Qt, pyqtSignal
 from PyQt6.QtWidgets import QFrame, QPushButton, QVBoxLayout
 
+from src.ui.styles.tokens import COLORS
+
 INACTIVE_ICON_COLOR = "#ee5e0b"  # Default orange icon
 ACTIVE_ICON_COLOR = "#ffffff" 
 BUTTON_SIZE = 48
@@ -13,6 +15,8 @@ class Sidebar(QFrame):
         super().__init__(parent)
         self.setObjectName("sidebar")
         self._init_ui()
+
+        self.apply_styles()
 
     def _init_ui(self):
         layout = QVBoxLayout(self)
@@ -73,3 +77,38 @@ class Sidebar(QFrame):
         for i, btn in enumerate(self.buttons):
             btn.setChecked(i == index)
         self.page_changed.emit(index)
+
+    def apply_styles(self):
+        self.setStyleSheet(f"""
+            QFrame#sidebar {{
+                background-color: {COLORS.dark_bg.name()};
+                border-right: 1px solid {COLORS.border.name()};
+                padding: 10px;
+                min-width: 60px;
+                max-width: 60px;
+            }}
+
+            /* Sidebar Icon Buttons */
+            QFrame#sidebar QPushButton {{
+                border: 2px solid {COLORS.accent.name()};
+                border-radius: 8px;
+                padding: 8px;
+                background-color: {COLORS.accent_light.name()};
+            }}
+
+            /* Hover state: Light orange background */
+            QFrame#sidebar QPushButton:hover {{
+                background-color: {COLORS.accent_hover.name()};
+            }}
+
+            /* Checked state: Solid orange background (Icon turns white automatically) */
+            QFrame#sidebar QPushButton:checked {{
+                background-color: {COLORS.accent.name()};
+            }}
+
+            /* Hovering while checked */
+            QFrame#sidebar QPushButton:checked:hover {{
+                background-color: {COLORS.accent_hover.name()};
+            }}
+
+        """)

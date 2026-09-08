@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
 from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
+from src.ui.styles.tokens import COLORS
 from src.ui.views.calander_view import CalendarView
 from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
@@ -34,10 +35,15 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("LMS Tracker")
         self.setGeometry(100, 200, 1200, 700)
 
+        self._init_ui()
+        
+        
+
+    def _init_ui(self):
         # Central Root Widgets & Main horizontal Layout
-        root_widget = QWidget()
-        self.setCentralWidget(root_widget)
-        main_layout = QHBoxLayout(root_widget)
+        self.root_widget = QWidget()
+        self.setCentralWidget(self.root_widget)
+        main_layout = QHBoxLayout(self.root_widget)
         main_layout.setSpacing(0)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -72,6 +78,8 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.sidebar)
         main_layout.addWidget(self.content_stack)
 
+        self.apply_styles()
+
     def switch_page(self, index: int):
         self.content_stack.setCurrentIndex(index)
     def start_sync_process(self):
@@ -92,3 +100,12 @@ class MainWindow(QMainWindow):
             self.btn_sync.setText(f"Sucess: {message}")
         else:
             self.btn_sync.setText(f"Failed: {message}")
+
+    def apply_styles(self):
+        self.root_widget.setObjectName("centralWidget")
+        self.root_widget.setStyleSheet(f"""
+            QWidget#centralWidget {{
+                background-color: {COLORS.window_bg.name()};
+                color: {COLORS.text_primary.name()};
+            }}
+        """)

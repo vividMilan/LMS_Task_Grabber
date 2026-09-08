@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 
+from src.ui.styles.tokens import COLORS
+
 COLOR_MAP = {
     "completed": "#4CAF50",
     "due soon": "#FF9800",
@@ -15,7 +17,11 @@ class SummaryCard(QWidget):
         self.title = title
         self.value = value
 
+        self.setObjectName("summaryCard")
+
         self.init_ui()
+
+        self.update_theme_styles()
 
     def init_ui(self):
 
@@ -24,54 +30,55 @@ class SummaryCard(QWidget):
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         # Card background
-        frame = QFrame()
-        frame.setObjectName("summaryFrame")
-
-        frame.setStyleSheet("""
-            QFrame#summaryFrame {
-                background-color: #d4d4d4;
-                border-radius: 12px;
-            }
-        """)
+        self.frame = QFrame()
+        self.frame.setObjectName("summaryFrame")
 
         # Layout inside the card
-        layout = QVBoxLayout(frame)
+        layout = QVBoxLayout(self.frame)
         layout.setObjectName("summaryLayout")
 
         layout.setContentsMargins(15, 15, 15, 15)
         layout.setSpacing(5)
 
         # Title
-        title_label = QLabel(self.title.capitalize())
-        title_label.setObjectName("summaryTitle")
+        self.title_label = QLabel(self.title.capitalize())
+        self.title_label.setObjectName("summaryTitle")
 
-        title_color = COLOR_MAP.get(
-            self.title.lower(),
-            "#000000"
-        )
+        # Value
+        self.value_label = QLabel(str(self.value))
+        self.value_label.setObjectName("summaryValue")
 
-        title_label.setStyleSheet(f"""
+        
+
+        layout.addWidget(self.title_label)
+        layout.addWidget(self.value_label)
+
+        # Add the frame to SummaryCard
+        main_layout.addWidget(self.frame)
+
+    def update_theme_styles(self):
+
+        try:
+            title_text_color = COLOR_MAP[self.title]
+        except ValueError:
+            title_text_color = COLORS.text_secondary.name()
+
+        self.frame.setStyleSheet(f"""
+            QFrame#summaryFrame {{
+                background-color: {COLORS.card_bg.name()};
+                border-radius: 12px;
+            }}
+
+            QLabel#summaryValue {{
+                font-size: 30px;
+                color: {COLORS.text_secondary.name()};
+                font-weight: bold;
+            }}
+
             QLabel#summaryTitle {{
                 font-size: 16px;
                 font-weight: bold;
-                color: {title_color};
+                color: {title_text_color};
             }}
+
         """)
-
-        # Value
-        value_label = QLabel(str(self.value))
-        value_label.setObjectName("summaryValue")
-
-        value_label.setStyleSheet("""
-            QLabel#summaryValue {
-                font-size: 30px;
-                color: #363535;
-                font-weight: bold;
-            }
-        """)
-
-        layout.addWidget(title_label)
-        layout.addWidget(value_label)
-
-        # Add the frame to SummaryCard
-        main_layout.addWidget(frame)

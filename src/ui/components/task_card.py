@@ -1,4 +1,3 @@
-
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QHBoxLayout,
@@ -10,6 +9,7 @@ from PyQt6.QtWidgets import (
 from src.ui.components.assignment_type_badge import assignmentType
 from src.ui.components.detail_chip import DetailChip
 from src.ui.styles.shadow_factory import apply_drop_shadow
+from src.ui.styles.tokens import COLORS
 
 
 class TaskCard(QWidget):
@@ -40,6 +40,8 @@ class TaskCard(QWidget):
             file_count=file_count,
             assignment_type=assignment_type,
         )
+
+        self.update_theme_styles()
 
     def _init_ui(
             self, 
@@ -88,5 +90,30 @@ class TaskCard(QWidget):
 
         task_layout.addLayout(heading_layout)
         task_layout.addLayout(footer_layout)
+
+    def update_theme_styles(self):
+        self.setStyleSheet(f"""
+            QWidget#taskCard {{
+                background-color: {COLORS.card_bg.name()};
+                border: 1px solid {COLORS.border.name()};
+                border-radius: 8px;
+                padding: 16px;
+            }}
+
+            QWidget#taskCard:hover {{
+                border-color: {COLORS.accent.name()};
+            }}
+
+            QWidget#taskCard QLabel#headingLabel {{
+                color: {COLORS.text_primary.name()};
+                font-size: 16px;
+                font-weight: bold;
+            }}
+
+        """)
+
+        self.style().unpolish(self)
+        self.style().polish(self)
+        self.update()
 
     

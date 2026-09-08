@@ -2,6 +2,8 @@ import qtawesome as qta
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QHBoxLayout, QLineEdit, QWidget
 
+from src.ui.styles.tokens import COLORS
+
 
 class SearchBar(QWidget):
     def __init__(self, placeholder: str = "Search...", parent=None):
@@ -28,3 +30,22 @@ class SearchBar(QWidget):
         self.setStyleSheet("border-radius: 16px;")
 
         layout.addWidget(input)
+
+        self.apply_styles()
+
+    def apply_styles(self):
+        self.setStyleSheet(f"""
+
+            #searchBarWidget #searchInput {{
+                border-radius: 20px;
+                padding: 12px 0px;
+                height: 16px;
+                color: {COLORS.window_bg.name()};
+            }}
+
+            #searchBarWidget #searchInput:focus {{
+                border: 1.68px solid {COLORS.accent.name()};
+            }}
+
+
+        """)
