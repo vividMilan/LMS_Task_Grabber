@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -13,6 +13,9 @@ from src.ui.styles.tokens import COLORS
 
 
 class TaskCard(QWidget):
+
+    clicked = pyqtSignal(object)
+
     def __init__(
             self, 
             title: str,
@@ -24,6 +27,14 @@ class TaskCard(QWidget):
             parent=None
         ):
         super().__init__(parent)
+
+        self.title = title
+        self.course_code = course_code
+        self.due_date = due_date
+        self.due_time = due_time
+        self.assignment_type = assignment_type
+        self.file_count = file_count
+
         self.setObjectName("taskCard")
 
         self.setAttribute(Qt.WidgetAttribute.WA_StyledBackground, True)
@@ -116,4 +127,8 @@ class TaskCard(QWidget):
         self.style().polish(self)
         self.update()
 
-    
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit(self)
+
+        super().mousePressEvent(event)

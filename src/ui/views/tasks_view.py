@@ -1,5 +1,5 @@
 import qtawesome as qta
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidget
 
 from src.ui.components.search_bar import SearchBar
@@ -8,13 +8,16 @@ from src.ui.styles.tokens import COLORS
 
 
 class TasksView(QWidget):
+
+    assignment_clicked = pyqtSignal(object)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("taskView")
 
         self._init_ui()
 
-        self.update_theme_styles()
+        self.update_theme_styles()  
 
     def _init_ui(self):
         main_layout = QVBoxLayout(self)
@@ -63,6 +66,18 @@ class TasksView(QWidget):
             course_code="MHZ4532",
             file_count=2,
             assignment_type="viva"
+        )
+
+        task1.clicked.connect(
+            self.assignment_clicked.emit
+        )
+
+        task2.clicked.connect(
+            self.assignment_clicked.emit
+        )
+
+        task3.clicked.connect(
+            self.assignment_clicked.emit
         )
 
         self.tasks_layout.addWidget(task1)

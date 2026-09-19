@@ -12,6 +12,7 @@ from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
 from src.ui.styles.tokens import COLORS
+from src.ui.views.assignment_view import AssignmentView
 from src.ui.views.calander_view import CalendarView
 from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
@@ -54,7 +55,7 @@ class MainWindow(QMainWindow):
         # Main area (stacked widget)
         self.content_stack = QStackedWidget()
 
-        page_dashboard = DashboardView()
+        self.page_dashboard = DashboardView()
 
         self.btn_sync = QPushButton("Sync Task")
         self.btn_sync.setIcon(qta.icon("fa5s.sync-alt", color="#fffff"))
@@ -63,16 +64,33 @@ class MainWindow(QMainWindow):
         self.spinner = Spinner(self, size=24, width=3)
         self.spinner.hide()
 
-        page_tasks = TasksView()
 
-        page_calender = CalendarView()
+        # ======================
+        # PAGES
+        # ======================
+        self.page_tasks = TasksView()
+        self.page_assignment_view = AssignmentView()
+        self.page_calender = CalendarView()
+        self.page_settings = SettingsView()
 
-        page_settings = SettingsView()
+        # =======================
+        # Assignment Navigation
+        # =======================
+
+        self.page_tasks.assignment_clicked.connect(
+            self.open_assignment
+        )
+
+        self.page_assignment_view.back_requested.connect(
+            self.show_tasks
+        )
+
         # add to the stack
-        self.content_stack.addWidget(page_dashboard)
-        self.content_stack.addWidget(page_tasks)
-        self.content_stack.addWidget(page_calender)
-        self.content_stack.addWidget(page_settings)
+        self.content_stack.addWidget(self.page_dashboard)
+        self.content_stack.addWidget(self.page_tasks)
+        self.content_stack.addWidget(self.page_calender)
+        self.content_stack.addWidget(self.page_settings)
+        self.content_stack.addWidget(self.page_assignment_view)
 
         # add to main layout & apply styles
         main_layout.addWidget(self.sidebar)
@@ -82,6 +100,7 @@ class MainWindow(QMainWindow):
 
     def switch_page(self, index: int):
         self.content_stack.setCurrentIndex(index)
+        
     def start_sync_process(self):
         self.btn_sync.setDisabled(True)
 
@@ -100,6 +119,32 @@ class MainWindow(QMainWindow):
             self.btn_sync.setText(f"Sucess: {message}")
         else:
             self.btn_sync.setText(f"Failed: {message}")
+
+    def open_assignment(self, task):
+        print(
+            "Opening assignment:",
+            task.title
+        )
+
+        # Give the selected taskCard to AssingmentView
+        self.page_assignment_view.set_assignment(
+            task
+        )
+
+        # Switch Page
+        self.content_stack.setCurrentWidget(
+            self.page_assignment_view
+        )
+
+    def switch_page(self, index: int):
+        self.content_stack.setCurrentIndex(
+            index
+        )
+
+    def show_tasks(self):
+        self.content_stack.setCurrentWidget(
+            self.page_tasks
+        )
 
     def apply_styles(self):
         self.root_widget.setObjectName("centralWidget")

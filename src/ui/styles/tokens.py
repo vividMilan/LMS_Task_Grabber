@@ -17,6 +17,16 @@ class ColorPalette:
     badge_viva: QColor
     badge_tma: QColor
 
+@dataclass(frozen=True)
+class FontSizes:
+    xs: int
+    sm: int
+    md: int
+    lg: int
+    xl: int
+    xxl: int
+    
+
 
 COLORS = ColorPalette(
     window_bg=QColor("#1e1e2e"),
@@ -30,4 +40,14 @@ COLORS = ColorPalette(
     border=QColor("#313244"),
     badge_viva=QColor("#f38ba8"),
     badge_tma=QColor("#fab387"),
+)
+
+
+FONT_SIZES = FontSizes(
+    xs=11,
+    sm=12,
+    md=14,
+    lg=16,
+    xl=20,
+    xxl=24,
 )
