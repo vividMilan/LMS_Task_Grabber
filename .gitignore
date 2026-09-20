@@ -30,3 +30,5 @@ __pycache__/
 # IDE & Editor settings
 .vscode/
 .idea/
+
+requirements.md
