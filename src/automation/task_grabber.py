@@ -76,7 +76,7 @@ def grabUpcomingEvents(page):
             "a[href*='xls'], "
             "a[href*='xlsx'], "
             "a[href*='doc'], "
-            "a[href*='docx'], "
+            "a[href*='docx']"
         )
 
         question_files = file_locators.all()
