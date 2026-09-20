@@ -1,13 +1,11 @@
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import List, Optional
-from src.database.models import AssignmentType
 
 
 @dataclass
 class ScrapedFile:
-    file_path: Optional[str] = None
-    file_link: Optional[str] = None
+    file_path: str | None = None
+    file_link: str | None = None
 
 @dataclass
 class ScrappedAssignment:
@@ -18,15 +16,15 @@ class ScrappedAssignment:
 
     # task
     heading: str = ""
-    due_date: Optional[datetime] = None
+    due_date: datetime | None = None
     link: str = ""
-    type: Optional[str] = None
+    type: str | None = None
 
     # file
-    files: List[ScrapedFile] = field(
+    files: list[ScrapedFile] = field(
         default_factory=list
     )
 
     # viva if there are any
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None

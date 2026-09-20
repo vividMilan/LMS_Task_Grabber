@@ -1,7 +1,7 @@
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from src.automation.schemas import ScrappedAssignment, ScrapedFile
+from src.automation.schemas import ScrapedFile, ScrappedAssignment
 from src.database.models import AssignmentType
 from src.utils.assignment_type import assignment_type
 from src.utils.date_parser import parse_due_date, parse_viva_time
