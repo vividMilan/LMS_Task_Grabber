@@ -48,6 +48,8 @@ class MainWindow(QMainWindow):
         main_layout.setSpacing(0)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
+        self.spinner = Spinner()
+
         # Sidebar
         self.sidebar = Sidebar()
         self.sidebar.page_changed.connect(self.switch_page)
@@ -57,13 +59,6 @@ class MainWindow(QMainWindow):
 
         self.page_dashboard = DashboardView()
 
-        self.btn_sync = QPushButton("Sync Task")
-        self.btn_sync.setIcon(qta.icon("fa5s.sync-alt", color="#fffff"))
-        self.btn_sync.clicked.connect(self.start_sync_process)
-
-        self.spinner = Spinner(self, size=24, width=3)
-        self.spinner.hide()
-
 
         # ======================
         # PAGES
@@ -72,6 +67,14 @@ class MainWindow(QMainWindow):
         self.page_assignment_view = AssignmentView()
         self.page_calender = CalendarView()
         self.page_settings = SettingsView()
+
+        # ===================================
+        # Signals
+        # ====================================
+
+        self.page_tasks.sync_requested.connect(
+            self.start_sync_process
+        )
 
         # =======================
         # Assignment Navigation
@@ -102,23 +105,22 @@ class MainWindow(QMainWindow):
         self.content_stack.setCurrentIndex(index)
         
     def start_sync_process(self):
-        self.btn_sync.setDisabled(True)
+
+        print("Strating Sync.....")
+
+        self.page_tasks.set_syncing(True)
 
         self.worker = ScrapperWorker()
         self.worker.finished_signal.connect(self.on_sync_finished)
 
-        self.spinner.start()
         self.worker.start()
 
     def on_sync_finished(self, success: bool, message: str):
-        self.btn_sync.setDisabled(False)
-        self.spinner.stop()
 
+        self.page_tasks.set_syncing(False)
 
         if success:
-            self.btn_sync.setText(f"Sucess: {message}")
-        else:
-            self.btn_sync.setText(f"Failed: {message}")
+            self.page_tasks.refresh_tasks()
 
     def open_assignment(self, task):
         print(

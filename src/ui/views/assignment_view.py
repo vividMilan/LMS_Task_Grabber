@@ -1,18 +1,21 @@
+from datetime import datetime
+
 import qtawesome as qta
-from PyQt6.QtCore import QSize, Qt, pyqtSignal
+from PyQt6.QtCore import QSize, Qt, pyqtSignal, QUrl
 from PyQt6.QtWidgets import (
     QFrame,
     QHBoxLayout,
+    QLabel,
     QPushButton,
     QScrollArea,
     QVBoxLayout,
     QWidget,
-    QLabel
 )
 
+from src.ui.components.assignment_type_badge import assignmentType
 from src.ui.styles.tokens import COLORS, FONT_SIZES
 
-from src.ui.components.assignment_type_badge import assignmentType
+from PyQt6.QtGui import QDesktopServices
 
 
 class AssignmentView(QWidget):
@@ -41,6 +44,11 @@ class AssignmentView(QWidget):
             20,
             20
         )
+
+        # LMS Link
+
+        self.lms_link = ""
+
         # =====================================
         # HEADER LAYOUT
         # =====================================
@@ -84,6 +92,10 @@ class AssignmentView(QWidget):
         self.lms_button = QPushButton("Open LMS")
 
         self.lms_button.setObjectName("lmsButton")
+
+        self.lms_button.clicked.connect(
+            self.open_lms_link
+        )
 
         self.lms_button.setIcon(
             qta.icon(
@@ -198,7 +210,6 @@ class AssignmentView(QWidget):
 
         assignment_header.setObjectName("assignmentHeader")
 
-
         assignment_header_layout = QVBoxLayout(
             assignment_header
         )
@@ -211,19 +222,14 @@ class AssignmentView(QWidget):
 
         # Badge Layout
 
-        badge_layout = QHBoxLayout()
-        assignment_type_chip = assignmentType(assignment_type="quiz")
-
-        badge_layout.addWidget(assignment_type_chip)
-
-        badge_layout.addStretch()
-
+        self.badge_layout = QHBoxLayout()
+        self.assignment_type_chip = assignmentType(
+            assignment_type="unknown"
+        )
 
         # Assignment title
 
-        self.assignment_title = QLabel(
-            "Software Architecture Design Specification"
-        )
+        self.assignment_title = QLabel("")
 
         self.assignment_title.setObjectName(
             "assignmentTitle"
@@ -250,7 +256,7 @@ class AssignmentView(QWidget):
         )
 
         assignment_header_layout.addLayout(
-            badge_layout
+            self.badge_layout
         )
 
         assignment_header_layout.addWidget(
@@ -351,21 +357,21 @@ class AssignmentView(QWidget):
         deadline_text = QLabel("Deadline")
         deadline_text.setObjectName("deadlineText")
 
-        deadline_date = QLabel("Fri, Oct 17")
-        deadline_date.setObjectName("deadlineDate")
+        self.deadline_date = QLabel("")
+        self.deadline_date.setObjectName("deadlineDate")
 
-        deadline_time = QLabel("12:00AM")
-        deadline_time.setObjectName("deadlineTime")
+        self.deadline_time = QLabel("12:00AM")
+        self.deadline_time.setObjectName("deadlineTime")
 
         deadline_card_layout.addWidget(deadline_text)
-        deadline_card_layout.addWidget(deadline_date)
-        deadline_card_layout.addWidget(deadline_time)
+        deadline_card_layout.addWidget(self.deadline_date)
+        deadline_card_layout.addWidget(self.deadline_time)
         deadline_card_layout.setSpacing(0)
 
         self.right_layout.addWidget(deadline_card)
 
         # ======================================================
-        # REMAINING CARD
+        # TIME REMAINING CARD
         # ======================================================
 
         time_remaining_card = QFrame()
@@ -376,11 +382,11 @@ class AssignmentView(QWidget):
         time_remaining_text = QLabel("Time Remaining")
         time_remaining_text.setObjectName("timeRemainingText")
 
-        time_remaining = QLabel("8 Days, 2 Hours")
-        time_remaining.setObjectName("timeRemaining")
+        self.time_remaining = QLabel("")
+        self.time_remaining.setObjectName("timeRemaining")
 
         time_remaining_card_layout.addWidget(time_remaining_text)
-        time_remaining_card_layout.addWidget(time_remaining)
+        time_remaining_card_layout.addWidget(self.time_remaining)
 
         self.right_layout.addWidget(time_remaining_card)
 
@@ -402,7 +408,63 @@ class AssignmentView(QWidget):
         layout.addWidget(self.scroll_area)
 
     def set_assignment(self, task):
-        pass
+        self.assignment_title.setText(
+            task.title
+        )
+
+        self.deadline_date.setText(
+            task.due_date
+        )
+
+        self.deadline_time.setText(
+            task.due_time
+        )
+
+        self.lms_link = task.link
+
+        self.add_assginment_type(task)
+
+        self.update_deadline(due_date=task.due_date, due_time=task.due_time)
+
+
+    def open_lms_link(self):
+        QDesktopServices.openUrl(QUrl(self.lms_link))
+
+    def add_assginment_type(self, task):
+
+        if self.assignment_type_chip:
+            self.assignment_type_chip.deleteLater()
+
+        if task.assignment_type:
+            assignment_type = task.assignment_type.lower()
+        else:
+            assignment_type = "unknown"
+
+        self.assignment_type_chip  = assignmentType(
+            assignment_type=assignment_type
+        )
+        
+        self.badge_layout.addWidget(self.assignment_type_chip)
+
+    def update_deadline(self, due_date, due_time):
+
+        if not due_date or due_time:
+            pass
+
+        deadline = datetime.strptime(
+            f"{due_date} {due_time}",
+            "%d, %b %Y %I:%M %p"
+        )
+
+        remaining = deadline - datetime.now()
+
+        days = remaining.days
+
+        hours = remaining.seconds // 3600
+
+        minutes = (remaining.seconds % 3600) // 60
+
+        self.time_remaining.setText(f"{days} Days, \n{hours} Hrs {minutes} Mins")
 
     def apply_style(self):
         self.setStyleSheet(f"""

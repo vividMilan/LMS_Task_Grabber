@@ -10,6 +10,7 @@ from src.database.repositories import (
     viva_slot_repo,
 )
 
+
 def generate_assignment_id(course_id: str, link: str):
     value = f"{course_id}:{link}"
     return hashlib.sha256(value.encode()).hexdigest()
