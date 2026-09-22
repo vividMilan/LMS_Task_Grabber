@@ -14,6 +14,7 @@ from PyQt6.QtWidgets import (
 
 from src.ui.components.assignment_type_badge import assignmentType
 from src.ui.styles.tokens import COLORS, FONT_SIZES
+from src.ui.components.task_card import TaskCard
 
 from PyQt6.QtGui import QDesktopServices
 
@@ -239,13 +240,7 @@ class AssignmentView(QWidget):
 
         # description
 
-        self.assignment_description = QLabel(
-            "Design and document the software architecture "
-            "for a proposed system. Your submission should "
-            "demonstrate your understanding of architectural "
-            "styles, system components, communication patterns, "
-            "and architectural decisions."
-        )
+        self.assignment_description = QLabel("")
 
         self.assignment_description.setObjectName(
             "assignmentDescription"
@@ -407,7 +402,7 @@ class AssignmentView(QWidget):
         self.scroll_area.setWidget(self.scroll_content)
         layout.addWidget(self.scroll_area)
 
-    def set_assignment(self, task):
+    def set_assignment(self, task: TaskCard):
         self.assignment_title.setText(
             task.title
         )
@@ -421,6 +416,10 @@ class AssignmentView(QWidget):
         )
 
         self.lms_link = task.link
+
+        self.assignment_description.setText(task.description)
+
+        print("\n![23]: ", task.description)
 
         self.add_assginment_type(task)
 

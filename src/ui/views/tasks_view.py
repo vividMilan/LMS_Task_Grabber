@@ -116,7 +116,8 @@ class TasksView(QWidget):
             course_code=assignment.course_id,
             file_count=file_count,
             assignment_type=assignment.type,
-            link=assignment.link
+            link=assignment.link,
+            description=assignment.description
         )
 
         # add task card

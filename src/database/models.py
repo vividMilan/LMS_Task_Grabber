@@ -71,6 +71,8 @@ class Assignment(Base):
 
     name: Mapped[str] = Column(String, nullable=False)
 
+    description: Mapped[str] = Column(String, nullable=True)
+
     course_id: Mapped[str] = mapped_column(ForeignKey("courses.id"))
 
     completed: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)

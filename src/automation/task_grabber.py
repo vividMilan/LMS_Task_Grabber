@@ -57,6 +57,10 @@ def grabUpcomingEvents(page):
 
         heading = page.locator("h2").first.inner_text().strip()
 
+        description = page.locator("div.activity-description").inner_text().strip()
+
+        print("\n Description:", description)
+
         # Skip if submitted
         cell = page.locator("table td").first
         if cell.count() > 0:
@@ -117,6 +121,7 @@ def grabUpcomingEvents(page):
         scraped_task.link = link
         scraped_task.due_date = parse_due_date(raw_due)
         scraped_task.type = type
+        scraped_task.description = description
 
         assignments.append(scraped_task)
 

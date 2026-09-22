@@ -16,6 +16,7 @@ class ScrappedAssignment:
 
     # task
     heading: str = ""
+    description: str = ""
     due_date: datetime | None = None
     link: str = ""
     type: str | None = None

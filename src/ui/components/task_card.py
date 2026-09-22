@@ -25,7 +25,8 @@ class TaskCard(QWidget):
             assignment_type: str,
             file_count: int | None = None,
             parent=None,
-            link: str | None = None
+            link: str | None = None,
+            description: str = ""
         ):
         super().__init__(parent)
 
@@ -36,6 +37,7 @@ class TaskCard(QWidget):
         self.assignment_type = assignment_type
         self.file_count = file_count
         self.link = link
+        self.description = description
 
         self.setObjectName("taskCard")
 
@@ -52,7 +54,8 @@ class TaskCard(QWidget):
             due_time=due_time,
             file_count=file_count,
             assignment_type=assignment_type,
-            link=link
+            link=link,
+            description=description
         )
 
         self.update_theme_styles()
@@ -65,7 +68,8 @@ class TaskCard(QWidget):
             due_time: str,
             assignment_type: str,
             file_count: int | None = None,
-            link: str | None = None
+            link: str | None = None,
+            description: str = ""
     ):
         task_layout = QVBoxLayout(self)
         task_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)

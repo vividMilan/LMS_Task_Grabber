@@ -20,7 +20,8 @@ class AssignmentRepository(BaseRepository[Assignment]):
         due: datetime,
         link: str,
         type: str | None = None,
-        files: list | None = None
+        files: list | None = None,
+        description: str = ""
     ) -> tuple[Assignment, bool]:
         """Inserts or updates an assignment record from scraped task data."""
 
@@ -33,6 +34,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
             assignment.type = type
             assignment.due = due
             assignment.files = files
+            assignment.description = description
 
             return assignment, False
         else:
@@ -44,6 +46,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
                 due=due,
                 type=type,
                 completed=False,
+                description=description
             )
 
             db.add(assignment)

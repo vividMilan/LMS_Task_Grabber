@@ -55,7 +55,8 @@ def process_and_save_scraped_assignment(
                 course_id=item.course_id,
                 name=item.heading,
                 due=item.due_date,
-                files=item.files
+                files=item.files,
+                description=item.description
             )
 
             # ---------------- Save Viva slot if exists ------------------------
