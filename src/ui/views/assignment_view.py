@@ -266,78 +266,6 @@ class AssignmentView(QWidget):
             assignment_header
         )
 
-        # =====================================================
-        # FILES CARD
-        # =====================================================
-
-        files_card = QFrame()
-
-        files_card.setObjectName("filesCard")
-
-        files_layout = QVBoxLayout(
-            files_card
-        )
-
-        files_layout.setContentsMargins(25, 25, 25, 25)
-
-        files_layout.setSpacing(10)
-
-        files_title = QLabel("Attached Files")
-
-        files_title.setObjectName("filesTitle")
-
-        files_layout.addWidget(
-            files_title
-        )
-
-        file1 = QFrame()
-        file1.setObjectName("fileButton")
-
-        file1_layout = QHBoxLayout(file1)
-        file1_layout.setContentsMargins(12, 8, 12, 8)
-        file1_layout.setSpacing(10)
-
-        # File icon
-        file_icon = QLabel()
-        file_icon.setPixmap(
-            qta.icon(
-                "fa5.file",
-                color=COLORS.accent.name()
-            ).pixmap(20, 20)
-        )
-
-        # file name 
-        file_name = QLabel("Software Architecture.pdf")
-        file_name.setObjectName("fileName")
-
-        # Download Button
-        download_button = QPushButton()
-        download_button.setObjectName("downloadButton")
-        download_button.setIcon(
-            qta.icon(
-                "ph.download-simple-bold",
-                color=COLORS.text_secondary.name()
-            )
-        )
-
-        download_button.setIconSize(QSize(20, 20))
-
-        download_button.setCursor(
-            Qt.CursorShape.PointingHandCursor
-        )
-
-        file1_layout.addWidget(file_icon)
-        file1_layout.addWidget(file_name)
-
-        # Push download button to the right
-        file1_layout.addStretch()
-
-        file1_layout.addWidget(download_button)
-
-        files_layout.addWidget(file1)
-
-        self.left_layout.addWidget(files_card)
-
         self.left_layout.addStretch()
 
         # =====================================================
@@ -419,7 +347,7 @@ class AssignmentView(QWidget):
 
         self.assignment_description.setText(task.description)
 
-        print("\n![23]: ", task.description)
+        self.add_assginment_type(task)
 
         self.add_assginment_type(task)
 
@@ -428,6 +356,80 @@ class AssignmentView(QWidget):
 
     def open_lms_link(self):
         QDesktopServices.openUrl(QUrl(self.lms_link))
+
+    def add_file_section(self, task: TaskCard):
+        # =====================================================
+        # FILES CARD
+        # =====================================================
+        if task.file_count() > 0:
+            
+            files_card = QFrame()
+
+            files_card.setObjectName("filesCard")
+
+            files_layout = QVBoxLayout(
+                files_card
+            )
+
+            files_layout.setContentsMargins(25, 25, 25, 25)
+
+            files_layout.setSpacing(10)
+
+            files_title = QLabel("Attached Files")
+
+            files_title.setObjectName("filesTitle")
+
+            files_layout.addWidget(
+                files_title
+            )
+
+            file1 = QFrame()
+            file1.setObjectName("fileButton")
+
+            file1_layout = QHBoxLayout(file1)
+            file1_layout.setContentsMargins(12, 8, 12, 8)
+            file1_layout.setSpacing(10)
+
+            # File icon
+            file_icon = QLabel()
+            file_icon.setPixmap(
+                qta.icon(
+                    "fa5.file",
+                    color=COLORS.accent.name()
+                ).pixmap(20, 20)
+            )
+
+            # file name 
+            file_name = QLabel("Software Architecture.pdf")
+            file_name.setObjectName("fileName")
+
+            # Download Button
+            download_button = QPushButton()
+            download_button.setObjectName("downloadButton")
+            download_button.setIcon(
+                qta.icon(
+                    "ph.download-simple-bold",
+                    color=COLORS.text_secondary.name()
+                )
+            )
+
+            download_button.setIconSize(QSize(20, 20))
+
+            download_button.setCursor(
+                Qt.CursorShape.PointingHandCursor
+            )
+
+            file1_layout.addWidget(file_icon)
+            file1_layout.addWidget(file_name)
+
+            # Push download button to the right
+            file1_layout.addStretch()
+
+            file1_layout.addWidget(download_button)
+
+            files_layout.addWidget(file1)
+
+            self.left_layout.addWidget(files_card)
 
     def add_assginment_type(self, task):
 
