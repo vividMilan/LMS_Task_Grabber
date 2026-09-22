@@ -6,18 +6,22 @@ from PyQt6.QtWidgets import (
     QPushButton,
     QStackedWidget,
     QWidget,
+    QSystemTrayIcon
 )
+
+from PyQt6.QtGui import QIcon
 
 from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
+from src.ui.components.toast_notification import ToastNotification
+
 from src.ui.styles.tokens import COLORS
 from src.ui.views.assignment_view import AssignmentView
 from src.ui.views.calander_view import CalendarView
 from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
 from src.ui.views.tasks_view import TasksView
-
 
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
@@ -35,12 +39,18 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("LMS Tracker")
         self.setGeometry(100, 200, 1200, 700)
-
         self._init_ui()
+
+        # self.show_notification()
         
         
 
     def _init_ui(self):
+
+        self.tray_icon = QSystemTrayIcon(self)
+        self.tray_icon.setIcon(QIcon.fromTheme("dialog-information"))
+        self.tray_icon.show()
+
         # Central Root Widgets & Main horizontal Layout
         self.root_widget = QWidget()
         self.setCentralWidget(self.root_widget)
@@ -101,6 +111,14 @@ class MainWindow(QMainWindow):
 
         self.apply_styles()
 
+    def show_notification(self):
+        self.tray_icon.showMessage(
+            "Task Due Soon",
+            "Your assignment due in 2 Hours ⌛",
+            QSystemTrayIcon.MessageIcon.Critical,
+            3000
+        )
+
     def switch_page(self, index: int):
         self.content_stack.setCurrentIndex(index)
         
@@ -118,6 +136,7 @@ class MainWindow(QMainWindow):
     def on_sync_finished(self, success: bool, message: str):
 
         self.page_tasks.set_syncing(False)
+        ToastNotification(parent=self, text="Task successfully synced!", duration=3000, bg_color="#107C41")
 
         if success:
             self.page_tasks.refresh_tasks()
