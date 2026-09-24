@@ -6,6 +6,9 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from src.ui.components.summery_card import SummaryCard
 from src.ui.styles.tokens import COLORS
 
+from src.database.connection import SessionLocal
+from src.database.repositories.assignment_repository import assignment_repo
+
 local_timezone = ZoneInfo("Asia/Colombo")
 
 class DashboardView(QWidget):
@@ -41,18 +44,10 @@ class DashboardView(QWidget):
 
 
         # Task Summary Section
-        summary_layout = QHBoxLayout()
-        summary_layout.setObjectName("summaryLayout")
+        self.summary_layout = QHBoxLayout()
+        self.summary_layout.setObjectName("summaryLayout")
 
-        # Completed Tasks
-        completedTasks = SummaryCard("completed", 10)
-        dueSoonTasks = SummaryCard("due soon", 5)
-        overdueTasks = SummaryCard("overdue", 2)
-
-        summary_layout.addWidget(completedTasks)
-        summary_layout.addWidget(dueSoonTasks)
-        summary_layout.addWidget(overdueTasks)
-
+        self.add_summary_cards()
 
         # Upcoming Tasks Section
         upcoming_tasks_layout = QVBoxLayout()
@@ -62,9 +57,28 @@ class DashboardView(QWidget):
 
 
         layout.addLayout(heading_layout)
-        layout.addLayout(summary_layout)
+        layout.addLayout(self.summary_layout)
         layout.addLayout(upcoming_tasks_layout)
         layout.addStretch()
+
+    def add_summary_cards(self):
+
+        db = SessionLocal()
+
+        completed_count = len(assignment_repo.get_upcoming(db))
+        due_soon_count = len(assignment_repo.get_due_soon(db))
+        overdue_count = len(assignment_repo.get_overdue(db))
+
+        db.close()
+
+        # Completed Tasks
+        completedTasks = SummaryCard("incomplete", completed_count)
+        dueSoonTasks = SummaryCard("due soon", due_soon_count)
+        overdueTasks = SummaryCard("overdue", overdue_count)
+        
+        self.summary_layout.addWidget(completedTasks)
+        self.summary_layout.addWidget(dueSoonTasks)
+        self.summary_layout.addWidget(overdueTasks)
 
     def update_theme_styles(self):
         self.label.setStyleSheet(f"""

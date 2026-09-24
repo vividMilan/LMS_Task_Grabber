@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session, joinedload
 
@@ -64,6 +64,34 @@ class AssignmentRepository(BaseRepository[Assignment]):
             .order_by(Assignment.due.asc())
             .all()
         )
+
+    def get_due_soon(self, db: Session) -> Sequence[Assignment]:
+        """Returns due soon tasks sorted by due date"""
+
+        return (
+            db.query(Assignment)
+                .filter(
+                    Assignment.completed == False,
+                    Assignment.due >= datetime.now(),
+                    Assignment.due <= (datetime.now() + timedelta(days=5))
+                )
+                .order_by(Assignment.due.asc())
+                .all()
+        )
+
+    def get_overdue(self, db: Session) -> Sequence[Assignment]:
+        """Returns overdue tasks sorted by due dates"""
+
+        return (
+            db.query(Assignment)
+                .filter(
+                    Assignment.completed == False, 
+                    Assignment.due < datetime.now()
+                )
+                .order_by(Assignment.due.asc())
+                .all()
+        )
+
 
     def mark_completed(self, db: Session, assignment_id: str) -> bool:
         """Marks a task as finished."""
