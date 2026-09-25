@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QDate
 from PyQt6.QtWidgets import (
     QCalendarWidget,
     QFrame,
@@ -9,8 +9,11 @@ from PyQt6.QtWidgets import (
 )
 
 from src.ui.components.task_card import TaskCard
-from src.ui.styles.tokens import COLORS
+from src.ui.styles.tokens import COLORS, FONT_SIZES
 
+
+from src.database.connection import SessionLocal
+from src.database.repositories.assignment_repository import assignment_repo
 
 class CalendarView(QWidget):
 
@@ -31,37 +34,122 @@ class CalendarView(QWidget):
 
         self.scroll_content = QWidget()
 
+        # ---------------- Calendar -------------------
+        calendar_container = QFrame()
+
+        today = QDate.currentDate()
+
+
+        self.calendar = QCalendarWidget(calendar_container)
+        self.calendar.setObjectName("calendar")
+        
+        # Show only one month
+        self.calendar.setVerticalHeaderFormat(
+            QCalendarWidget.VerticalHeaderFormat.NoVerticalHeader
+        )
+
+        self.calendar.setGridVisible(False)
+
+        self.calendar.setCurrentPage(
+            today.year(),
+            today.month()
+        )
+
+        self.calendar.setSelectedDate(today)
+
+        self.calendar.selectionChanged.connect(self.date_selected)
+
         calender_layout = QVBoxLayout()
-        assignment_layout = QVBoxLayout(self.scroll_content)
-        assignment_layout.setContentsMargins(16, 16, 16, 16)
-        assignment_layout.setSpacing(8)
+        self.assignment_layout = QVBoxLayout(self.scroll_content)
+        self.assignment_layout.setContentsMargins(16, 16, 16, 16)
+        self.assignment_layout.setSpacing(8)
 
-        calendar = QCalendarWidget()
 
-        # Add task cards
-        for _ in range(10):
-            assignment_layout.addWidget(
-                TaskCard(
-                    title="Database Management – TMA 01",
-                    due_date="2026/08/12",
-                    due_time="11:59PM",
-                    course_code="EEX5432",
-                    assignment_type="quiz",
-                )
-            )
+        
 
-        calender_layout.addWidget(calendar)
+        calender_layout.addWidget(self.calendar)
         calender_layout.addStretch()
 
-        assignment_layout.addStretch()
         self.scroll_area.setWidget(self.scroll_content)
 
         layout.addLayout(calender_layout, 3)
         layout.addWidget(self.scroll_area, 7)
 
+    
+    def date_selected(self):
+        selected_date = self.calendar.selectedDate()
+        python_date = selected_date.toPyDate()
+
+        db = SessionLocal()
+
+        try:
+            assignments = assignment_repo.get_by_date(
+                db=db,
+                selected_date=python_date
+            )
+
+            self.render_assignments(assignments)
+
+        finally:
+            db.close()
+
+    def clear_assignments(self):
+        while self.assignment_layout.count():
+
+            item = self.assignment_layout.takeAt(0)
+
+            widget = item.widget()
+
+            if widget is not None:
+                widget.deleteLater()
+
+    def render_assignments(self, assignments):
+
+        self.clear_assignments()
+
+        # Add task cards
+        for assignment in assignments:
+
+            self.assignment_layout.addWidget(
+                TaskCard(
+                    title=assignment.name,
+                    due_date=assignment.due.strftime("%Y/%m/%d"),
+                    due_time=assignment.due.strftime("%I:%M %p"),
+                    course_code=assignment.course_id,
+                    assignment_type=assignment.type,
+                )
+            )
+
+        self.assignment_layout.addStretch()
+    
     def update_theme_styles(self):
 
-        self.scroll_area.setStyleSheet(f"""
+        self.setStyleSheet(f"""
+
+            #calendar QHeaderView {{
+                background-color: transparent; 
+            }}
+
+            #calendar QHeaderView::section {{
+                background-color: {COLORS.accent.name()};
+                color: {COLORS.text_secondary.name()};
+                border: none;
+                padding: 4px;
+                font-weight: bold;
+                font-size: {FONT_SIZES.xs}px;
+            }}
+
+            #calendar QAbstractItemView {{
+                background-color: {COLORS.dark_bg.name()};
+                border-radius: 44px;
+                color: {COLORS.text_primary.name()};
+                selection-background-color: {COLORS.accent.name()};
+                selection-color: #ffffff;
+                border: none;
+                outline: none;
+                font-size: {FONT_SIZES.sm}px;
+            }}
+
             #assignmentScrollArea {{
                 background-color: transparent;
                 border: none;

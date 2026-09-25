@@ -7,6 +7,9 @@ from ..models import Assignment
 from .base_repository import BaseRepository
 
 
+from datetime import date as date_type, datetime, time, timedelta
+
+
 class AssignmentRepository(BaseRepository[Assignment]):
     def __init__(self):
         super().__init__(Assignment)
@@ -61,6 +64,20 @@ class AssignmentRepository(BaseRepository[Assignment]):
             db.query(Assignment)
             .options(joinedload(Assignment.course), joinedload(Assignment.files))
             .filter(Assignment.completed == False)
+            .order_by(Assignment.due.asc())
+            .all()
+        )
+
+    def get_by_date(self, db: Session, selected_date: date_type) -> Sequence[Assignment]:
+        """Returns assignments due on a specific date."""
+
+        start = datetime.combine(selected_date, time.min)
+        end = start + timedelta(days=1)
+
+
+        return (
+            db.query(Assignment)
+            .filter(Assignment.due >= start, Assignment.due < end)
             .order_by(Assignment.due.asc())
             .all()
         )
