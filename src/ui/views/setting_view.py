@@ -11,9 +11,11 @@ from PyQt6.QtWidgets import (
     QStackedWidget,
     QVBoxLayout,
     QWidget,
+    QLineEdit
 )
 
 from src.ui.styles.tokens import COLORS
+from src.services.credential_service import save_credentials
 
 
 class SettingsView(QWidget):
@@ -134,10 +136,37 @@ class SettingsView(QWidget):
 
         heading = self._create_card(title="Genaral", description="You can set genaral settings")
 
+        self.username_input = QLineEdit()
+
+        self.username_input.setPlaceholderText("Username")
+
+        self.password_input = QLineEdit()
+
+        self.password_input.setPlaceholderText("Password")
+
+        submit_btn = QPushButton("Save Credentials")
+
+        submit_btn.clicked.connect(self.save_lms_credentials)
+
         layout.addLayout(heading)
+
+        layout.addWidget(self.username_input)
+        layout.addWidget(self.password_input)
+        layout.addWidget(submit_btn)
 
         layout.addStretch()
         return widget
+
+    def save_lms_credentials(self):
+        username = self.username_input.text().strip()
+        password = self.password_input.text()
+
+        if not username or password:
+            pass
+
+        save_credentials(username=username, password=password)
+
+        print("Credentials saved")
 
     def _create_appearance_settings(self):
         widget = QWidget()
@@ -233,8 +262,11 @@ class SettingsView(QWidget):
     def _create_checkbox(self, label: str):
         return QCheckBox(label)
 
-    def _on_theme_preference_changed(self, selected_mode: str): 
+    def _on_theme_preference_changed(self, selected_mode: str):
         pass
+
+    # def save_lms_credentials(self):
+    #     username = self.
     
     def update_theme_styles(self):
 
