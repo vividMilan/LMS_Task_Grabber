@@ -2,7 +2,7 @@ import keyring
 
 SERVICE_NAME = "LMS Tracker"
 
-def save_credentials(username: str, password: str):
+def save_credentials(username: str, password: str) -> None:
     """Save LMS credentials to the operating system's credential store."""
 
     keyring.set_password(
@@ -19,7 +19,7 @@ def save_credentials(username: str, password: str):
 
     print("Credentials saved")
 
-def get_credentials():
+def get_credentials() -> str | None:
     """Get the saved LMS password."""
 
     username = keyring.get_password(
@@ -37,7 +37,7 @@ def get_credentials():
 
     return username, password
 
-def delete_credentials():
+def delete_credentials() -> None:
     """Delete saved LMS credentials."""
     
     username = keyring.get_password(
