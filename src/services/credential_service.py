@@ -37,7 +37,7 @@ def get_credentials() -> str | None:
 
     return username, password
 
-def delete_credentials(username: str) -> None:
+def delete_credentials() -> None:
     """Delete saved LMS credentials."""
     
     username = keyring.get_password(

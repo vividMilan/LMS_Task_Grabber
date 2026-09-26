@@ -18,8 +18,8 @@ print("============ Credentials ===============")
 print(username)
 print(password)
 
-if password is None:
-    raise RuntimeError("LMS password has not been set")
+# if password is None:
+#     raise RuntimeError("LMS password has not been set")
 
 def scrape_tasks():
     p, browser, page = launch_browser()

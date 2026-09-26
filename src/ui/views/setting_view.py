@@ -1,4 +1,5 @@
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -15,8 +16,9 @@ from PyQt6.QtWidgets import (
 )
 
 from src.ui.styles.tokens import COLORS
-from src.services.credential_service import save_credentials
+from src.services.credential_service import save_credentials, get_credentials, delete_credentials
 
+from src.ui.components.toast_notification import ToastNotification
 
 class SettingsView(QWidget):
     def __init__(self, parent=None):
@@ -144,27 +146,58 @@ class SettingsView(QWidget):
 
         self.password_input.setPlaceholderText("Password")
 
+        self.render_credentials()
+
         submit_btn = QPushButton("Save Credentials")
+        delete_btn = QPushButton("Delete Credentials")
+
 
         submit_btn.clicked.connect(self.save_lms_credentials)
+        delete_btn.clicked.connect(self.delete_credentials_btn)
 
         layout.addLayout(heading)
 
         layout.addWidget(self.username_input)
         layout.addWidget(self.password_input)
         layout.addWidget(submit_btn)
+        layout.addWidget(delete_btn)
 
         layout.addStretch()
         return widget
+
+    def delete_credentials_btn(self):
+            delete_credentials()
+            self.render_credentials()
+            print("Deleted Credentials")
+
+    def render_credentials(self):
+
+        username, password = get_credentials()
+
+        if username:
+            self.username_input.setText(username)
+
+        if password:
+            self.password_input.setText(password)
 
     def save_lms_credentials(self):
         username = self.username_input.text().strip()
         password = self.password_input.text()
 
+
         if not username or password:
             pass
 
+        existing_username, existing_password = get_credentials()
+
+        if username == existing_username and password == existing_password:
+            ToastNotification(self, text="Credentials Already Saved", bg_color=COLORS.warning.name(), duration=3000)
+            return
+
         save_credentials(username=username, password=password)
+        self.render_credentials()
+
+        ToastNotification(self, text="Credentials Saved", bg_color=COLORS.success.name(), duration=3000)
 
         print("Credentials saved")
 

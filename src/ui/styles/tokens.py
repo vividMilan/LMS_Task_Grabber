@@ -16,6 +16,9 @@ class ColorPalette:
     border: QColor
     badge_viva: QColor
     badge_tma: QColor
+    success: QColor
+    warning: QColor
+    error: QColor
 
 @dataclass(frozen=True)
 class FontSizes:
@@ -40,6 +43,9 @@ COLORS = ColorPalette(
     border=QColor("#313244"),
     badge_viva=QColor("#f38ba8"),
     badge_tma=QColor("#fab387"),
+    success=QColor("#1E5E3A"),
+    warning=QColor("#9A5800"),
+    error=QColor("#A31D1D")
 )
 
 
