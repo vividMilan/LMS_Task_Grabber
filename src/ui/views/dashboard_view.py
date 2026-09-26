@@ -3,11 +3,10 @@ from zoneinfo import ZoneInfo
 
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
-from src.ui.components.summery_card import SummaryCard
-from src.ui.styles.tokens import COLORS
-
 from src.database.connection import SessionLocal
 from src.database.repositories.assignment_repository import assignment_repo
+from src.ui.components.summery_card import SummaryCard
+from src.ui.styles.tokens import COLORS
 
 local_timezone = ZoneInfo("Asia/Colombo")
 

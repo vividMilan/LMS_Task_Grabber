@@ -1,7 +1,8 @@
 from datetime import datetime
 
 import qtawesome as qta
-from PyQt6.QtCore import QSize, Qt, pyqtSignal, QUrl
+from PyQt6.QtCore import QSize, Qt, QUrl, pyqtSignal
+from PyQt6.QtGui import QDesktopServices
 from PyQt6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -13,10 +14,8 @@ from PyQt6.QtWidgets import (
 )
 
 from src.ui.components.assignment_type_badge import assignmentType
-from src.ui.styles.tokens import COLORS, FONT_SIZES
 from src.ui.components.task_card import TaskCard
-
-from PyQt6.QtGui import QDesktopServices
+from src.ui.styles.tokens import COLORS, FONT_SIZES
 
 
 class AssignmentView(QWidget):

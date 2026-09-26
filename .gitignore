@@ -32,3 +32,8 @@ __pycache__/
 .idea/
 
 requirements.md
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec

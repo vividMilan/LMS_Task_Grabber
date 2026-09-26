@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt, QDate
+from PyQt6.QtCore import QDate, Qt
 from PyQt6.QtWidgets import (
     QCalendarWidget,
     QFrame,
@@ -8,12 +8,11 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from src.database.connection import SessionLocal
+from src.database.repositories.assignment_repository import assignment_repo
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
 
-
-from src.database.connection import SessionLocal
-from src.database.repositories.assignment_repository import assignment_repo
 
 class CalendarView(QWidget):
 

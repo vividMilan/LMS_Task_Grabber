@@ -1,7 +1,7 @@
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 
-def login(page, username, password, url):
+def login(page, username, password, url) -> bool:
     """Logs into OUSL LMS via IAM."""
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=60000)

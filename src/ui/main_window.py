@@ -1,21 +1,18 @@
-import qtawesome as qta
 from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QMainWindow,
-    QPushButton,
     QStackedWidget,
+    QSystemTrayIcon,
     QWidget,
-    QSystemTrayIcon
+    QMessageBox
 )
-
-from PyQt6.QtGui import QIcon
 
 from src.automation.scrape_tasks import scrape_tasks
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
 from src.ui.components.toast_notification import ToastNotification
-
 from src.ui.styles.tokens import COLORS
 from src.ui.views.assignment_view import AssignmentView
 from src.ui.views.calander_view import CalendarView
@@ -23,13 +20,19 @@ from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
 from src.ui.views.tasks_view import TasksView
 
+
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
 
     def run(self):
         try:
-            scrape_tasks()
-            self.finished_signal.emit(True, "Tasks sysnced successfully!")
+
+            success, message = scrape_tasks()
+            self.finished_signal.emit(
+                success, 
+                message
+            )
+
         except Exception as e: # noqa: BLE001
             self.finished_signal.emit(False, str(e))
 
@@ -43,8 +46,6 @@ class MainWindow(QMainWindow):
 
         # self.show_notification()
         
-        
-
     def _init_ui(self):
 
         self.tray_icon = QSystemTrayIcon(self)
@@ -136,10 +137,26 @@ class MainWindow(QMainWindow):
     def on_sync_finished(self, success: bool, message: str):
 
         self.page_tasks.set_syncing(False)
-        ToastNotification(parent=self, text="Task successfully synced!", duration=3000, bg_color="#107C41")
 
-        if success:
-            self.page_tasks.refresh_tasks()
+        if not success:
+            msg = QMessageBox(self)
+
+            msg.setWindowTitle("Sync Failed")
+            msg.setText(message)
+            msg.setIcon(QMessageBox.Icon.Warning)
+
+            msg.exec()
+
+            return
+        
+        
+        ToastNotification(
+            parent=self, 
+            text="Task successfully synced!", 
+            bg_color=COLORS.success.name()
+        )
+
+        self.page_tasks.refresh_tasks()
 
     def open_assignment(self, task):
         print(

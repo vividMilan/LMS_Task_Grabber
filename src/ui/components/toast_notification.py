@@ -1,6 +1,7 @@
-from PyQt6.QtCore import Qt, QTimer, QPropertyAnimation, QPoint
-from PyQt6.QtWidgets import QLabel, QWidget, QHBoxLayout, QGraphicsDropShadowEffect
+from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QColor
+from PyQt6.QtWidgets import QGraphicsDropShadowEffect, QHBoxLayout, QLabel, QWidget
+
 
 class ToastNotification(QWidget):
     def __init__(self, parent=None, text="Notification", duration=3000, bg_color="#0078D4"):

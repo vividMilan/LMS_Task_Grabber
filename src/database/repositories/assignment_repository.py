@@ -1,13 +1,11 @@
 from collections.abc import Sequence
-from datetime import datetime, timedelta
+from datetime import date as date_type
+from datetime import datetime, time, timedelta
 
 from sqlalchemy.orm import Session, joinedload
 
 from ..models import Assignment
 from .base_repository import BaseRepository
-
-
-from datetime import date as date_type, datetime, time, timedelta
 
 
 class AssignmentRepository(BaseRepository[Assignment]):

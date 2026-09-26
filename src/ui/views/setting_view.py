@@ -1,24 +1,29 @@
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QFrame,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QListWidget,
     QListWidgetItem,
     QPushButton,
     QStackedWidget,
     QVBoxLayout,
     QWidget,
-    QLineEdit
 )
 
-from src.ui.styles.tokens import COLORS
-from src.services.credential_service import save_credentials, get_credentials, delete_credentials
-
+from src.services.credential_service import (
+    delete_credentials,
+    get_credentials,
+    save_credentials,
+)
 from src.ui.components.toast_notification import ToastNotification
+from src.ui.styles.tokens import COLORS
+
+import qtawesome as qta
+
 
 class SettingsView(QWidget):
     def __init__(self, parent=None):
@@ -142,9 +147,47 @@ class SettingsView(QWidget):
 
         self.username_input.setPlaceholderText("Username")
 
-        self.password_input = QLineEdit()
 
+        password_container = QWidget()
+
+        password_layout = QHBoxLayout(password_container)
+        password_layout.setContentsMargins(0, 0, 0, 0)
+        password_layout.setSpacing(0)
+        
+        self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Password")
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+
+        self.password_eye_button = QPushButton()
+
+        self.password_eye_button.setCursor(
+            Qt.CursorShape.PointingHandCursor
+        )
+
+        self.password_eye_button.setIcon(
+            qta.icon("fa5s.eye")
+        )
+
+        self.password_eye_button.setFixedSize(40, 40)
+
+        self.password_eye_button.setStyleSheet("""
+            QPushButton {
+                border: none;
+                background: transparent;
+            }
+
+            QPushButton:hover {
+                background: rgba(255, 255, 255, 20);
+                border-radius: 5px;
+            }
+        """)
+
+        self.password_eye_button.clicked.connect(
+            self.toggle_password_visibility
+        )
+
+        password_layout.addWidget(self.password_input)
+        password_layout.addWidget(self.password_eye_button)
 
         self.render_credentials()
 
@@ -158,17 +201,39 @@ class SettingsView(QWidget):
         layout.addLayout(heading)
 
         layout.addWidget(self.username_input)
-        layout.addWidget(self.password_input)
+        layout.addWidget(password_container)
         layout.addWidget(submit_btn)
         layout.addWidget(delete_btn)
 
         layout.addStretch()
         return widget
 
+    def toggle_password_visibility(self):
+
+        if self.password_input.echoMode() == QLineEdit.EchoMode.Password:
+
+            self.password_input.setEchoMode(
+                QLineEdit.EchoMode.Normal
+            )
+
+            self.password_eye_button.setIcon(
+                qta.icon("fa5s.eye-slash")
+            )
+        else:
+
+            self.password_input.setEchoMode(
+                QLineEdit.EchoMode.Password
+            )
+
+            self.password_eye_button.setIcon(
+                qta.icon("fa5s.eye")
+            )
+
+
     def delete_credentials_btn(self):
             delete_credentials()
             self.render_credentials()
-            print("Deleted Credentials")
+            ToastNotification(self, text="Credential Deleted Successfully", bg_color=COLORS.success.name())
 
     def render_credentials(self):
 
@@ -297,9 +362,6 @@ class SettingsView(QWidget):
 
     def _on_theme_preference_changed(self, selected_mode: str):
         pass
-
-    # def save_lms_credentials(self):
-    #     username = self.
     
     def update_theme_styles(self):
 
