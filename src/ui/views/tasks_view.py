@@ -8,6 +8,8 @@ from src.ui.components.search_bar import SearchBar
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
 
+from src.domain.types.assignment import AssignmentData
+
 
 class TasksView(QWidget):
 
@@ -86,7 +88,7 @@ class TasksView(QWidget):
             color: {COLORS.text_primary.name()};
         """)
 
-    def create_task_card(self, assignment):
+    def create_task_card(self, assignment: AssignmentData):
 
         # File count
         file_count = len(

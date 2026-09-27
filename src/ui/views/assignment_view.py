@@ -61,6 +61,8 @@ class AssignmentView(QWidget):
 
         self.back_button.setObjectName("backButton")
 
+        self.back_button.setCursor(Qt.CursorShape.PointingHandCursor)
+
         self.back_button.setCursor(
             Qt.CursorShape.PointingHandCursor
         )
@@ -92,6 +94,8 @@ class AssignmentView(QWidget):
         self.lms_button = QPushButton("Open LMS")
 
         self.lms_button.setObjectName("lmsButton")
+
+        self.lms_button.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self.lms_button.clicked.connect(
             self.open_lms_link
@@ -187,7 +191,7 @@ class AssignmentView(QWidget):
         self.left_layout.setSpacing(20)
 
         # =====================================================
-        # LEFT SIDE
+        # RIGHT SIDE
         # =====================================================
         
         self.right_content = QWidget()
@@ -312,6 +316,10 @@ class AssignmentView(QWidget):
 
         self.right_layout.addWidget(time_remaining_card)
 
+        # =====================================================
+        # MARK AS COMPLETED BUTTON
+        # =====================================================
+
         self.right_layout.addStretch()
 
         # =====================================================
@@ -355,6 +363,7 @@ class AssignmentView(QWidget):
 
     def open_lms_link(self):
         QDesktopServices.openUrl(QUrl(self.lms_link))
+
 
     def add_file_section(self, task: TaskCard):
         # =====================================================
