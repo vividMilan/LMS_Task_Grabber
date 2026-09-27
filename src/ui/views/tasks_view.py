@@ -108,6 +108,8 @@ class TasksView(QWidget):
                 "%I:%M %p"
             )
 
+        course_name = assignment.course.name  if getattr(assignment, "course", None) else ""
+
         # Create task card
         task_card = TaskCard(
             title=assignment.name,
@@ -117,7 +119,8 @@ class TasksView(QWidget):
             file_count=file_count,
             assignment_type=assignment.type,
             link=assignment.link,
-            description=assignment.description
+            description=assignment.description,
+            course_name=course_name
         )
 
         # add task card

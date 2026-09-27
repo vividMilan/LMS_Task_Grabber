@@ -23,6 +23,7 @@ class TaskCard(QWidget):
             due_date: str,
             due_time: str,
             assignment_type: str,
+            course_name: str,
             file_count: int | None = None,
             parent=None,
             link: str | None = None,
@@ -38,6 +39,7 @@ class TaskCard(QWidget):
         self.file_count = file_count
         self.link = link
         self.description = description
+        self.course_name = course_name
 
         self.setObjectName("taskCard")
 
@@ -55,7 +57,8 @@ class TaskCard(QWidget):
             file_count=file_count,
             assignment_type=assignment_type,
             link=link,
-            description=description
+            description=description,
+            course_name=course_name
         )
 
         self.update_theme_styles()
@@ -69,7 +72,8 @@ class TaskCard(QWidget):
             assignment_type: str,
             file_count: int | None = None,
             link: str | None = None,
-            description: str = ""
+            description: str = "",
+            course_name: str = ""
     ):
         task_layout = QVBoxLayout(self)
         task_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -97,7 +101,7 @@ class TaskCard(QWidget):
         footer_layout.setSpacing(6)
 
         if course_code:
-            footer_layout.addWidget(DetailChip("course", course_code))
+            footer_layout.addWidget(DetailChip("course", course_code, course_name))
         if due_date:
             footer_layout.addWidget(DetailChip("date", due_date))
         if due_time:

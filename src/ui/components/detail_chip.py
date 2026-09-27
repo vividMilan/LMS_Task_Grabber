@@ -3,11 +3,13 @@ from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
 
 class DetailChip(QWidget):
-    def __init__(self, content_type: str, content_str: str, parent=None):
+    def __init__(self, content_type: str, content_str: str, tooltip: str | None = None, parent=None):
         super().__init__(parent)
-        self._init_ui(content_type=content_type, content_str=content_str)
+        self._init_ui(
+            content_type=content_type, content_str=content_str, tooltip=tooltip
+        )
 
-    def _init_ui(self, content_type, content_str):
+    def _init_ui(self, content_type: str, content_str: str, tooltip: str | None):
         # Main layout for the DetailChip widget
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -15,6 +17,10 @@ class DetailChip(QWidget):
 
         chip = QFrame()
         chip.setObjectName("chip")
+
+        if tooltip:
+            chip.setToolTip(tooltip)
+            self.setToolTip(tooltip)
 
         chip_layout = QHBoxLayout(chip)
         chip_layout.setContentsMargins(8, 4, 8, 4)
