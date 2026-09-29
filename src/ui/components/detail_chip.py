@@ -1,15 +1,17 @@
 import qtawesome as qta
 from PyQt6.QtWidgets import QFrame, QHBoxLayout, QLabel, QWidget
 
+from src.domain.enums.chip_types import ChipType
+
 
 class DetailChip(QWidget):
-    def __init__(self, content_type: str, content_str: str, tooltip: str | None = None, parent=None):
+    def __init__(self, content_type: ChipType, content_str: str, tooltip: str | None = None, parent=None):
         super().__init__(parent)
         self._init_ui(
             content_type=content_type, content_str=content_str, tooltip=tooltip
         )
 
-    def _init_ui(self, content_type: str, content_str: str, tooltip: str | None):
+    def _init_ui(self, content_type: ChipType, content_str: str, tooltip: str | None):
         # Main layout for the DetailChip widget
         main_layout = QHBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
@@ -26,13 +28,13 @@ class DetailChip(QWidget):
         chip_layout.setContentsMargins(8, 4, 8, 4)
         chip_layout.setSpacing(4)
 
-        if content_type == "course":
+        if content_type == ChipType.COURSE:
             icon = qta.icon("mdi6.book", color="#ffffff")
-        elif content_type == "date":
+        elif content_type == ChipType.DATE:
             icon = qta.icon("fa5s.calendar-alt", color="#ffffff")
-        elif content_type == "time":
+        elif content_type == ChipType.TIME:
             icon = qta.icon("mdi.clock-time-four", color="#ffffff")
-        elif content_type == "file":
+        elif content_type == ChipType.FILE:
             icon = qta.icon("ei.paper-clip", color="#ffffff")
 
         icon_label = QLabel()

@@ -17,6 +17,12 @@ from src.ui.components.assignment_type_badge import assignmentType
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
 
+from src.database.connection import SessionLocal
+from src.database.repositories.assignment_repository import assignment_repo
+from src.domain.types.assignment import AssignmentData
+
+from src.utils.strip_datetime import strip_due
+
 
 class AssignmentView(QWidget):
 
@@ -337,35 +343,59 @@ class AssignmentView(QWidget):
         self.scroll_area.setWidget(self.scroll_content)
         layout.addWidget(self.scroll_area)
 
-    def set_assignment(self, task: TaskCard):
+    def set_assignment(self, assignment_id: str):
+
+        db = SessionLocal()
+
+        try:
+            assignment = assignment_repo.get_by_id(
+                db,
+                assignment_id
+            )
+
+            if not assignment:
+                return
+
+            self.display_assignment(assignment)
+            
+
+        except Exception as e:
+            print(e)
+        finally:
+            db.close()
+
+
+    def display_assignment(self, assignment: AssignmentData):
+
+        due_date, due_time = strip_due(assignment.due)
+
         self.assignment_title.setText(
-            task.title
+            assignment.name
         )
 
         self.deadline_date.setText(
-            task.due_date
+            due_date
         )
 
         self.deadline_time.setText(
-            task.due_time
+            due_time
         )
 
-        self.lms_link = task.link
+        self.lms_link = assignment.link
 
-        self.assignment_description.setText(task.description)
+        self.assignment_description.setText(assignment.description)
 
-        self.add_assginment_type(task)
+        self.add_assginment_type(assignment)
 
-        self.add_assginment_type(task)
+        self.add_assginment_type(assignment)
 
-        self.update_deadline(due_date=task.due_date, due_time=task.due_time)
-
+        self.update_deadline(assignment.due)
 
     def open_lms_link(self):
         QDesktopServices.openUrl(QUrl(self.lms_link))
 
 
-    def add_file_section(self, task: TaskCard):
+    def add_file_section(self, task: AssignmentData):
         # =====================================================
         # FILES CARD
         # =====================================================
@@ -439,13 +469,13 @@ class AssignmentView(QWidget):
 
             self.left_layout.addWidget(files_card)
 
-    def add_assginment_type(self, task):
+    def add_assginment_type(self, task: AssignmentData):
 
         if self.assignment_type_chip:
             self.assignment_type_chip.deleteLater()
 
-        if task.assignment_type:
-            assignment_type = task.assignment_type.lower()
+        if task.type:
+            assignment_type = task.type.lower()
         else:
             assignment_type = "unknown"
 
@@ -455,17 +485,18 @@ class AssignmentView(QWidget):
         
         self.badge_layout.addWidget(self.assignment_type_chip)
 
-    def update_deadline(self, due_date, due_time):
+    def update_deadline(self, due: datetime):
 
-        if not due_date or due_time:
-            pass
+        remaining_text = ""
 
-        deadline = datetime.strptime(
-            f"{due_date} {due_time}",
-            "%d, %b %Y %I:%M %p"
-        )
+        if not due:
+            self.time_remaining.setText("No Deadline")
 
-        remaining = deadline - datetime.now()
+        remaining = due - datetime.now()
+
+        if remaining.total_seconds() <= 0:
+            self.time_remaining.setText("Overdue")
+            return
 
         days = remaining.days
 
@@ -473,7 +504,15 @@ class AssignmentView(QWidget):
 
         minutes = (remaining.seconds % 3600) // 60
 
-        self.time_remaining.setText(f"{days} Days, \n{hours} Hrs {minutes} Mins")
+        if days == 0:
+            remaining_text = f"{hours} Hours {minutes} Mins"
+        else:
+            remaining_text = f"{days} Days, \n{hours} Hours {minutes} Mins"
+
+
+        self.time_remaining.setText(
+            remaining_text
+        )
 
     def apply_style(self):
         self.setStyleSheet(f"""

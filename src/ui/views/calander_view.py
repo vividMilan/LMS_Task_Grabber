@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QDate, Qt
+from PyQt6.QtCore import QDate, Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QCalendarWidget,
     QFrame,
@@ -13,8 +13,11 @@ from src.database.repositories.assignment_repository import assignment_repo
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
 
+from src.domain.types.assignment import AssignmentData
 
 class CalendarView(QWidget):
+
+    assignment_clicked = pyqtSignal(object)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -63,9 +66,6 @@ class CalendarView(QWidget):
         self.assignment_layout.setContentsMargins(16, 16, 16, 16)
         self.assignment_layout.setSpacing(8)
 
-
-        
-
         calender_layout.addWidget(self.calendar)
         calender_layout.addStretch()
 
@@ -102,21 +102,28 @@ class CalendarView(QWidget):
             if widget is not None:
                 widget.deleteLater()
 
-    def render_assignments(self, assignments):
+    def render_assignments(self, assignments: list[AssignmentData]):
 
         self.clear_assignments()
 
         # Add task cards
         for assignment in assignments:
 
+            task_card = TaskCard(
+                id=assignment.id,
+                title=assignment.name,
+                due=assignment.due,
+                course_code=assignment.course_id,
+                assignment_type=assignment.type,
+                course_name=assignment.course.name
+            )
+
+            task_card.clicked.connect(
+                self.assignment_clicked.emit
+            )
+
             self.assignment_layout.addWidget(
-                TaskCard(
-                    title=assignment.name,
-                    due_date=assignment.due.strftime("%Y/%m/%d"),
-                    due_time=assignment.due.strftime("%I:%M %p"),
-                    course_code=assignment.course_id,
-                    assignment_type=assignment.type,
-                )
+                task_card
             )
 
         self.assignment_layout.addStretch()

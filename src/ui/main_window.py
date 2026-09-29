@@ -99,6 +99,10 @@ class MainWindow(QMainWindow):
             self.show_tasks
         )
 
+        self.page_calender.assignment_clicked.connect(
+            self.open_assignment
+        )
+
         # add to the stack
         self.content_stack.addWidget(self.page_dashboard)
         self.content_stack.addWidget(self.page_tasks)

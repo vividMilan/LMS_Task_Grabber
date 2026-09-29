@@ -90,38 +90,15 @@ class TasksView(QWidget):
 
     def create_task_card(self, assignment: AssignmentData):
 
-        # File count
-        file_count = len(
-            assignment.files
-        )
-
-        # due date
-        due_time = ""
-
-        due_date = ""
-
-        if assignment.due:
-
-            due_date = assignment.due.strftime(
-                "%d, %h %Y"
-            )
-
-            due_time = assignment.due.strftime(
-                "%I:%M %p"
-            )
-
         course_name = assignment.course.name  if getattr(assignment, "course", None) else ""
 
         # Create task card
         task_card = TaskCard(
+            id=assignment.id,
             title=assignment.name,
-            due_date=due_date,
-            due_time=due_time,
+            due=assignment.due,
             course_code=assignment.course_id,
-            file_count=file_count,
             assignment_type=assignment.type,
-            link=assignment.link,
-            description=assignment.description,
             course_name=course_name
         )
 

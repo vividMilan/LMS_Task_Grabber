@@ -11,35 +11,35 @@ from src.ui.components.detail_chip import DetailChip
 from src.ui.styles.shadow_factory import apply_drop_shadow
 from src.ui.styles.tokens import COLORS
 
+from src.utils.strip_datetime import strip_due
+
+from src.domain.enums.chip_types import ChipType
+
+from datetime import datetime
+
 
 class TaskCard(QWidget):
 
     clicked = pyqtSignal(object)
 
     def __init__(
-            self, 
+            self,
+            id: str,
             title: str,
             course_code: str,
-            due_date: str,
-            due_time: str,
+            due: datetime | None,
             assignment_type: str,
             course_name: str,
-            file_count: int | None = None,
             parent=None,
-            link: str | None = None,
-            description: str = ""
         ):
         super().__init__(parent)
 
+        self.id = id
         self.title = title
         self.course_code = course_code
-        self.due_date = due_date
-        self.due_time = due_time
         self.assignment_type = assignment_type
-        self.file_count = file_count
-        self.link = link
-        self.description = description
         self.course_name = course_name
+        self.due = due
 
         self.setObjectName("taskCard")
 
@@ -50,29 +50,23 @@ class TaskCard(QWidget):
         self.setCursor(Qt.CursorShape.PointingHandCursor)
 
         self._init_ui(
-            title,
+            id=id,
+            title=title,
             course_code=course_code,
-            due_date=due_date,
-            due_time=due_time,
-            file_count=file_count,
             assignment_type=assignment_type,
-            link=link,
-            description=description,
-            course_name=course_name
+            course_name=course_name,
+            due=due
         )
 
         self.update_theme_styles()
 
     def _init_ui(
-            self, 
+            self,
+            id: str,
             title: str,
             course_code: str,
-            due_date: str,
-            due_time: str,
+            due: datetime,
             assignment_type: str,
-            file_count: int | None = None,
-            link: str | None = None,
-            description: str = "",
             course_name: str = ""
     ):
         task_layout = QVBoxLayout(self)
@@ -102,12 +96,22 @@ class TaskCard(QWidget):
 
         if course_code:
             footer_layout.addWidget(DetailChip("course", course_code, course_name))
+
+        due_date = ""
+        due_time = ""
+
+        if due:
+            due_date, due_time = strip_due(due=due)
+
         if due_date:
-            footer_layout.addWidget(DetailChip("date", due_date))
-        if due_time:
-            footer_layout.addWidget(DetailChip("time", due_time))
-        if file_count:
-            footer_layout.addWidget(DetailChip("file", f"{file_count} files"))
+            footer_layout.addWidget(
+                DetailChip(ChipType.DATE, due_date)
+            )
+
+        if (due_time):
+            footer_layout.addWidget(
+                DetailChip(ChipType.TIME, due_time)
+            )
 
         footer_layout.addStretch() 
 
@@ -141,6 +145,6 @@ class TaskCard(QWidget):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.MouseButton.LeftButton:
-            self.clicked.emit(self)
+            self.clicked.emit(self.id)
 
         super().mousePressEvent(event)
