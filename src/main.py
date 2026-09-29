@@ -3,6 +3,8 @@ import os
 import sys
 from pathlib import Path
 
+from PyQt6.QtGui import QIcon
+
 from dotenv import load_dotenv
 from PyQt6.QtCore import QFileSystemWatcher
 from PyQt6.QtWidgets import QApplication
@@ -58,7 +60,9 @@ class QSSWatcher:
             print("[QSS] Stylesheet reloaded.")
 
 def gui_mode():
+    
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon("assets/logo.png"))
     _qss_watcher = QSSWatcher(app, "ui/styles/style.qss")
     window = MainWindow()
 
