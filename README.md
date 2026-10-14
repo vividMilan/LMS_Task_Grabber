@@ -43,9 +43,23 @@ cd LMS_Task_Grabber
 python -m pip install -r requirements.txt
 ```
 
+### 4. Change the environment variables
+
+```env
+LMS_USERNAME=
+LMS_PASSWORD=
+LMS_URL=www.campus.lms.com
+```
+
+**Please do not change LMS USERNAME and LMS PASSWORD variables**
+
 ### 4. Run the application
 
 ```bash
 python -m src.main
 ```
 
+## ⚠ Please keep these in mind
+
+- The scraping script is written for my university LMS, so it not guaranteed to work on any LMS
+- This is still in development, further features will be added and deployed soon
