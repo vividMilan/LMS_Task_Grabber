@@ -20,6 +20,10 @@ from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
 from src.ui.views.tasks_view import TasksView
 
+from PyQt6.QtCore import QTimer
+
+from src.services.due_notification_service import check_deadlines
+
 
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
@@ -40,6 +44,12 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+
+        QTimer.singleShot(
+            1000,
+            self.check_deadline_notification
+        )
+
         self.setWindowTitle("LMS Tracker")
         self.setGeometry(100, 200, 1200, 700)
         self._init_ui()
@@ -116,12 +126,37 @@ class MainWindow(QMainWindow):
 
         self.apply_styles()
 
-    def show_notification(self):
+    def check_deadline_notification(self):
+
+        dealines = check_deadlines()
+
+        overdue = dealines["overdue"]
+        due_soon = dealines["due_soon"]
+
+        if not overdue and not due_soon:
+            return
+
+        messages = []
+
+        if overdue:
+            messages.append(
+                f"Overdue ({len(overdue)}): "
+                + ", ".join(overdue[:3])
+            )
+
+        if due_soon:
+            messages.append(
+                f"Due within 24 hours ({len(due_soon)})"
+                + ", ".join(overdue[:3])
+            )
+
+        message = "\n".join(messages)
+
         self.tray_icon.showMessage(
-            "Task Due Soon",
-            "Your assignment due in 2 Hours ⌛",
-            QSystemTrayIcon.MessageIcon.Critical,
-            3000
+            "LMS Tracker - Deadline Reminder",
+            message,
+            QSystemTrayIcon.MessageIcon.Warning,
+            1000
         )
 
     def switch_page(self, index: int):
