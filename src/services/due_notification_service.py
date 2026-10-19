@@ -6,8 +6,11 @@ from src.database.models import Assignment
 
 
 def check_deadlines() -> dict:
+
+    print("Deadline check started!")
+
     now = datetime.now(APP_TIMEZONE)
-    due_soon_limit = now + timedelta(hours=DUE_SOON)
+    due_soon_limit = now + timedelta(days=DUE_SOON)
 
     overdue = []
     due_soon = []
@@ -40,8 +43,12 @@ def check_deadlines() -> dict:
             elif now <= due <= due_soon_limit:
                 due_soon.append(assignment.name)
 
-    return {
+    result = {
         "overdue": overdue,
         "due_soon": due_soon
     }
+
+    print("Deadline check result:", result)
+
+    return result
                 

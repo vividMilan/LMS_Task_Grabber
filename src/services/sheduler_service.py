@@ -44,20 +44,23 @@ class AppScheduler:
         minutes,
         run_immediately=False
     ):
+
+        job_options = {
+            "trigger": "interval",
+            "minutes": minutes,
+            "args": [job_id, job_function],
+            "id": job_id,
+            "replace_existing": True,
+            "max_instances": 1,
+            "coalesce": True,
+        }
+
+        if run_immediately:
+            job_options["next_run_time"] = datetime.now(APP_TIMEZONE)
+        
         self.scheduler.add_job(
             self._execute_job,
-            trigger="interval",
-            minutes=minutes,
-            args=[job_id, job_function],
-            id=job_id,
-            replace_existing=True,
-            max_instances=1,
-            coalesce=True,
-            next_run_time=(
-                datetime.now(APP_TIMEZONE)
-                if run_immediately
-                else None
-            )
+            **job_options
         )
 
     def add_daily_job(
@@ -65,7 +68,8 @@ class AppScheduler:
         job_id,
         job_function,
         hour,
-        minute=0
+        minute=0,
+        run_immediately=False
     ):
         self.scheduler.add_job(
             self._execute_job,

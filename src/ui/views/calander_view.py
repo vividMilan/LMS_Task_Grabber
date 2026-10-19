@@ -14,7 +14,6 @@ from src.domain.types.assignment import AssignmentData
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
 
-
 class CalendarView(QWidget):
 
     assignment_clicked = pyqtSignal(object)
@@ -24,6 +23,7 @@ class CalendarView(QWidget):
 
         self._init_ui()
         self.update_theme_styles()
+        self.refresh_calendar()
 
     def _init_ui(self):
         layout = QHBoxLayout(self)
@@ -76,6 +76,21 @@ class CalendarView(QWidget):
 
     
     def date_selected(self):
+        """Reload assignment when the user selects a date"""
+        self.refresh_calendar()
+
+    def clear_assignments(self):
+        while self.assignment_layout.count():
+
+            item = self.assignment_layout.takeAt(0)
+
+            widget = item.widget()
+
+            if widget is not None:
+                widget.deleteLater()
+
+    def refresh_calendar(self):
+        """Refresh assignments for the currently selected date."""
         selected_date = self.calendar.selectedDate()
         python_date = selected_date.toPyDate()
 
@@ -87,20 +102,12 @@ class CalendarView(QWidget):
                 selected_date=python_date
             )
 
-            self.render_assignments(assignments)
+            self.render_assignments(assignments=assignments)
 
+        except Exception as exc:
+            print(f"Failed to refresh calendar assignments: {exc}")
         finally:
             db.close()
-
-    def clear_assignments(self):
-        while self.assignment_layout.count():
-
-            item = self.assignment_layout.takeAt(0)
-
-            widget = item.widget()
-
-            if widget is not None:
-                widget.deleteLater()
 
     def render_assignments(self, assignments: list[AssignmentData]):
 

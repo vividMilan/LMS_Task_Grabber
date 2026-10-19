@@ -64,7 +64,7 @@ def grabUpcomingEvents(page):
                 timeout=3000
             ).strip()
         else:
-            description = ""
+            description = "No description found"
 
             print("Description not found. Skipping.")
 

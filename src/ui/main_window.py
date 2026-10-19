@@ -59,16 +59,16 @@ class MainWindow(QMainWindow):
         )
 
 
-        self.scheduler.add_daily_job(
+        self.scheduler.add_interval_job(
             job_id="assignment_sync",
             job_function=sync_assignments,
-            hour=10
+            minutes=60,
         )
 
-        self.scheduler.add_daily_job(
+        self.scheduler.add_interval_job(
             job_id="deadline_check",
             job_function=check_deadlines,
-            hour=5,
+            minutes=1
         )
 
         print("Starting LMS Tracker scheduler...")
@@ -290,3 +290,9 @@ class MainWindow(QMainWindow):
             QSystemTrayIcon.MessageIcon.Warning,
             5000,
         )
+
+
+    def refresh_assignment_views(self):
+        """Refresh all view that display assignments"""
+        self.page_tasks.refresh_tasks()
+        self.page_calender.refresh_calendar()
