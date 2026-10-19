@@ -1,9 +1,8 @@
 from datetime import datetime, timedelta
-from src.config.time import APP_TIMEZONE, DUE_SOON
 
+from src.config.time import APP_TIMEZONE, DUE_SOON
 from src.database.connection import SessionLocal
 from src.database.models import Assignment
-
 
 
 def check_deadlines() -> dict:

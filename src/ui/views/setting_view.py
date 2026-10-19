@@ -1,3 +1,4 @@
+import qtawesome as qta
 from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QCheckBox,
@@ -21,8 +22,6 @@ from src.services.credential_service import (
 )
 from src.ui.components.toast_notification import ToastNotification
 from src.ui.styles.tokens import COLORS
-
-import qtawesome as qta
 
 
 class SettingsView(QWidget):

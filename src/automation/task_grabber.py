@@ -57,9 +57,16 @@ def grabUpcomingEvents(page):
 
         heading = page.locator("h2").first.inner_text().strip()
 
-        description = page.locator("div.activity-description").inner_text().strip()
+        description_locator = page.locator("div.activity-description")
 
-        print("\n Description:", description)
+        if description_locator.count() > 0:
+            description = description_locator.first.inner_text(
+                timeout=3000
+            ).strip()
+        else:
+            description = ""
+
+            print("Description not found. Skipping.")
 
         # Skip if submitted
         cell = page.locator("table td").first

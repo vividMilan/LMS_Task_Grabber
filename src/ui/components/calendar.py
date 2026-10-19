@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QCalendarWidget, QHeaderView
 from PyQt6.QtCore import QDate, Qt
-from PyQt6.QtGui import QPainter, QColor
+from PyQt6.QtGui import QColor, QPainter
+from PyQt6.QtWidgets import QCalendarWidget
 
 from src.domain.types.assignment import AssignmentData
 from src.ui.styles.tokens import COLORS, FONT_SIZES

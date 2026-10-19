@@ -2,8 +2,9 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from src.domain.enums.assignment_types import AssignmentType
-from src.domain.types.file import FileData
 from src.domain.types.course import CourseData
+from src.domain.types.file import FileData
+
 
 @dataclass
 class AssignmentData:

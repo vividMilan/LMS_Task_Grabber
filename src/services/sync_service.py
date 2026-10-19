@@ -1,4 +1,5 @@
 import hashlib
+from threading import Lock
 
 from sqlalchemy.orm import Session
 
@@ -10,6 +11,8 @@ from src.database.repositories import (
     viva_slot_repo,
 )
 
+_sync_lock = Lock()
+
 
 def generate_assignment_id(course_id: str, link: str):
     value = f"{course_id}:{link}"
@@ -17,11 +20,10 @@ def generate_assignment_id(course_id: str, link: str):
 
 
 def process_and_save_scraped_assignment(
-    db: Session, scraped_items: list[ScrappedAssignment]
+    db: Session, 
+    scraped_items: list[ScrappedAssignment]
 ) -> dict:
-    """Iterates through scraped assignments, ensures course records exist,
-
-    and upserts assignments into the local database.
+    """Create or update scraped assignments and related records.
     """
 
     stats = {
@@ -101,3 +103,25 @@ def process_and_save_scraped_assignment(
         raise
 
     return stats
+
+
+def sync_assignments() -> tuple[bool, str]:
+    """Run an assignment sync without overlapping another sync."""
+
+    if not _sync_lock.acquire(blocking=False):
+        return False, "An assignment sync is already running"
+
+    try:
+        # local import avoids a circular import
+        # scrape_task imports process_and_save_assignments
+        # from this module
+
+        from src.automation.scrape_tasks import scrape_tasks
+
+        return scrape_tasks()
+
+    except Exception as exc: # noqa: BLE001
+        return False, f"Assginment sync failed: {exc}"
+
+    finally:
+        _sync_lock.release()

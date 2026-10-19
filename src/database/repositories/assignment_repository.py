@@ -4,6 +4,8 @@ from datetime import datetime, time, timedelta
 
 from sqlalchemy.orm import Session, joinedload
 
+from src.config.time import APP_TIMEZONE
+
 from ..models import Assignment
 from .base_repository import BaseRepository
 
@@ -87,8 +89,8 @@ class AssignmentRepository(BaseRepository[Assignment]):
             db.query(Assignment)
                 .filter(
                     Assignment.completed == False,
-                    Assignment.due >= datetime.now(),
-                    Assignment.due <= (datetime.now() + timedelta(days=5))
+                    Assignment.due >= datetime.now(APP_TIMEZONE),
+                    Assignment.due <= (datetime.now(APP_TIMEZONE) + timedelta(days=5))
                 )
                 .order_by(Assignment.due.asc())
                 .all()
@@ -101,7 +103,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
             db.query(Assignment)
                 .filter(
                     Assignment.completed == False, 
-                    Assignment.due < datetime.now()
+                    Assignment.due < datetime.now(APP_TIMEZONE)
                 )
                 .order_by(Assignment.due.asc())
                 .all()

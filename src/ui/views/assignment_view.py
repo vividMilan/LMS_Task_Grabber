@@ -13,14 +13,12 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
-from src.ui.components.assignment_type_badge import assignmentType
-from src.ui.components.task_card import TaskCard
-from src.ui.styles.tokens import COLORS, FONT_SIZES
-
+from src.config.time import APP_TIMEZONE
 from src.database.connection import SessionLocal
 from src.database.repositories.assignment_repository import assignment_repo
 from src.domain.types.assignment import AssignmentData
-
+from src.ui.components.assignment_type_badge import assignmentType
+from src.ui.styles.tokens import COLORS, FONT_SIZES
 from src.utils.strip_datetime import strip_due
 
 
@@ -359,7 +357,7 @@ class AssignmentView(QWidget):
             self.display_assignment(assignment)
             
 
-        except Exception as e:
+        except Exception as e: # noqa: BLE001
             print(e)
         finally:
             db.close()
@@ -492,7 +490,7 @@ class AssignmentView(QWidget):
         if not due:
             self.time_remaining.setText("No Deadline")
 
-        remaining = due - datetime.now()
+        remaining = due - datetime.now(APP_TIMEZONE)
 
         if remaining.total_seconds() <= 0:
             self.time_remaining.setText("Overdue")

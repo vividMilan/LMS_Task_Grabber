@@ -3,10 +3,9 @@ import os
 import sys
 from pathlib import Path
 
-from PyQt6.QtGui import QIcon
-
 from dotenv import load_dotenv
 from PyQt6.QtCore import QFileSystemWatcher
+from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import QApplication
 
 from src.automation.auth import login
@@ -39,7 +38,7 @@ def cli_mode():
             )
             print(f"Hello: {count}")
     finally:
-        browser.close()
+        browser.close() 
         p.stop()
         db.close()
 

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QHBoxLayout,
@@ -6,16 +8,12 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from src.domain.enums.chip_types import ChipType
 from src.ui.components.assignment_type_badge import assignmentType
 from src.ui.components.detail_chip import DetailChip
 from src.ui.styles.shadow_factory import apply_drop_shadow
 from src.ui.styles.tokens import COLORS
-
 from src.utils.strip_datetime import strip_due
-
-from src.domain.enums.chip_types import ChipType
-
-from datetime import datetime
 
 
 class TaskCard(QWidget):

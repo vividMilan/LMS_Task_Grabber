@@ -1,15 +1,18 @@
 from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtGui import QIcon
 from PyQt6.QtWidgets import (
+    QApplication,
     QHBoxLayout,
     QMainWindow,
+    QMessageBox,
     QStackedWidget,
     QSystemTrayIcon,
     QWidget,
-    QMessageBox
 )
 
-from src.automation.scrape_tasks import scrape_tasks
+from src.services.due_notification_service import check_deadlines
+from src.services.sheduler_service import AppScheduler
+from src.services.sync_service import sync_assignments
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
 from src.ui.components.toast_notification import ToastNotification
@@ -20,10 +23,6 @@ from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
 from src.ui.views.tasks_view import TasksView
 
-from PyQt6.QtCore import QTimer
-
-from src.services.due_notification_service import check_deadlines
-
 
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
@@ -31,7 +30,7 @@ class ScrapperWorker(QThread):
     def run(self):
         try:
 
-            success, message = scrape_tasks()
+            success, message = sync_assignments()
             self.finished_signal.emit(
                 success, 
                 message
@@ -45,16 +44,41 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        QTimer.singleShot(
-            1000,
-            self.check_deadline_notification
-        )
-
         self.setWindowTitle("LMS Tracker")
         self.setGeometry(100, 200, 1200, 700)
         self._init_ui()
 
-        # self.show_notification()
+        self.scheduler = AppScheduler()
+
+        self.scheduler.signals.job_completed.connect(
+            self.on_scheduled_job_completed
+        )
+
+        self.scheduler.signals.job_failed.connect(
+            self.on_scheduled_job_failed
+        )
+
+
+        self.scheduler.add_daily_job(
+            job_id="assignment_sync",
+            job_function=sync_assignments,
+            hour=10
+        )
+
+        self.scheduler.add_daily_job(
+            job_id="deadline_check",
+            job_function=check_deadlines,
+            hour=5,
+        )
+
+        print("Starting LMS Tracker scheduler...")
+        self.scheduler.start()
+        print("Scheduler started:", self.scheduler.scheduler.running)
+
+        QApplication.instance().aboutToQuit.connect(
+            self.scheduler.stop
+        )
+
         
     def _init_ui(self):
 
@@ -126,14 +150,17 @@ class MainWindow(QMainWindow):
 
         self.apply_styles()
 
-    def check_deadline_notification(self):
+    def check_deadline_notification(self, deadlines=None):
 
-        dealines = check_deadlines()
+        if deadlines is None:
+            deadlines = check_deadlines()
 
-        overdue = dealines["overdue"]
-        due_soon = dealines["due_soon"]
+
+        overdue = deadlines.get("overdue", [])
+        due_soon = deadlines.get("due_soon", [])
 
         if not overdue and not due_soon:
+            print("No upcoming deadline notifications.")
             return
 
         messages = []
@@ -158,9 +185,6 @@ class MainWindow(QMainWindow):
             QSystemTrayIcon.MessageIcon.Warning,
             1000
         )
-
-    def switch_page(self, index: int):
-        self.content_stack.setCurrentIndex(index)
         
     def start_sync_process(self):
 
@@ -231,3 +255,38 @@ class MainWindow(QMainWindow):
                 color: {COLORS.text_primary.name()};
             }}
         """)
+
+    def on_scheduled_job_completed(self, job_id, result):
+        """Handle scheduler results on the GUI Thread"""
+
+
+        if job_id == "deadline_check":
+
+            self.check_deadline_notification(result)
+
+
+        elif job_id == "assignment_sync":
+
+            success, message = result
+
+            self.tray_icon.showMessage(
+                "LMS Tracker - Automatic Sync",
+                message,
+                (
+                    QSystemTrayIcon.MessageIcon.Information
+                    if success
+                    else QSystemTrayIcon.MessageIcon.Warning
+                ),
+                5000
+            )
+
+            if success:
+                self.page_tasks.refresh_tasks()
+
+    def on_scheduled_job_failed(self, job_id, error_message):
+        self.tray_icon.showMessage(
+            "LMS Tracker - Scheduler Error",
+            f"{job_id}: {error_message}",
+            QSystemTrayIcon.MessageIcon.Warning,
+            5000,
+        )

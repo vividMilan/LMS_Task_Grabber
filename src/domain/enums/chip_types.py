@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class ChipType(str, Enum):
     COURSE = "course"
     DATE = "date"

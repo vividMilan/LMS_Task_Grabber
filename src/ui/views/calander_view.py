@@ -10,10 +10,10 @@ from PyQt6.QtWidgets import (
 
 from src.database.connection import SessionLocal
 from src.database.repositories.assignment_repository import assignment_repo
+from src.domain.types.assignment import AssignmentData
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
 
-from src.domain.types.assignment import AssignmentData
 
 class CalendarView(QWidget):
 

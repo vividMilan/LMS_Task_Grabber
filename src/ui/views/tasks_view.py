@@ -4,11 +4,10 @@ from PyQt6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QVBoxLayout, QWidg
 
 from src.database.connection import SessionLocal
 from src.database.repositories.assignment_repository import assignment_repo
+from src.domain.types.assignment import AssignmentData
 from src.ui.components.search_bar import SearchBar
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
-
-from src.domain.types.assignment import AssignmentData
 
 
 class TasksView(QWidget):
@@ -140,7 +139,7 @@ class TasksView(QWidget):
                     assignment=assignment
                 )
 
-        except Exception as e:
+        except Exception as e: # noqa: BLE001
             print(
                 f"Error loading assignments: {e}"
             )
