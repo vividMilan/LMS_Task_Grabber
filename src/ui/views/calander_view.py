@@ -1,4 +1,6 @@
-from PyQt6.QtCore import QDate, Qt, pyqtSignal
+
+from PyQt6.QtCore import QDate, QPointF, Qt, pyqtSignal
+from PyQt6.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt6.QtWidgets import (
     QCalendarWidget,
     QFrame,
@@ -7,12 +9,54 @@ from PyQt6.QtWidgets import (
     QVBoxLayout,
     QWidget,
 )
+from sqlalchemy.exc import SQLAlchemyError
 
+from src.config.time import APP_TIMEZONE
 from src.database.connection import SessionLocal
+from src.database.models import Assignment
 from src.database.repositories.assignment_repository import assignment_repo
 from src.domain.types.assignment import AssignmentData
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
+
+
+class AssignmentCalendar(QCalendarWidget):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.assignment_dates = set()
+        self.indicator_color = QColor("#f39c12")
+
+    def paintCell(self, painter, rect, date):
+        # Draw the normal calendar cell first 
+
+        super().paintCell(painter, rect, date)
+
+        # Draw a dot if an assignment is due on this date
+        if date.toPyDate() in self.assignment_dates:
+            painter.save()
+            painter.setRenderHint(
+                QPainter.RenderHint.Antialiasing
+            )
+            painter.setPen(QPen(Qt.PenStyle.NoPen))
+
+            painter.setBrush(QBrush(self.indicator_color))
+
+            dot_radius = 3
+
+            dot_x = rect.center().x()
+            dot_y = rect.bottom() - 6
+
+            painter.drawEllipse(
+                QPointF(dot_x, dot_y),
+                dot_radius,
+                dot_radius
+            )
+
+            painter.restore()
+
+
+
 
 class CalendarView(QWidget):
 
@@ -23,6 +67,8 @@ class CalendarView(QWidget):
 
         self._init_ui()
         self.update_theme_styles()
+
+        self.refresh_deadline_indicators()
         self.refresh_calendar()
 
     def _init_ui(self):
@@ -42,7 +88,7 @@ class CalendarView(QWidget):
         today = QDate.currentDate()
 
 
-        self.calendar = QCalendarWidget(calendar_container)
+        self.calendar = AssignmentCalendar(calendar_container)
         self.calendar.setObjectName("calendar")
         
         # Show only one month
@@ -61,6 +107,10 @@ class CalendarView(QWidget):
 
         self.calendar.selectionChanged.connect(self.date_selected)
 
+        self.calendar.currentPageChanged.connect(
+            self.refresh_deadline_indicators
+        )
+
         calender_layout = QVBoxLayout()
         self.assignment_layout = QVBoxLayout(self.scroll_content)
         self.assignment_layout.setContentsMargins(16, 16, 16, 16)
@@ -73,6 +123,36 @@ class CalendarView(QWidget):
 
         layout.addLayout(calender_layout, 3)
         layout.addWidget(self.scroll_area, 7)
+
+
+    def refresh_deadline_indicators(self, year=None, month=None):
+        """Highlight calendar dates based on assignment deadlines"""
+
+        assignment_dates = set()
+
+        with SessionLocal() as db:
+            assignments = db.query(Assignment).all()
+
+            for assignment in assignments:
+
+                if not assignment.due:
+                    continue
+
+                due = assignment.due
+
+                if due.tzinfo is None:
+                    due = due.replace(tzinfo=APP_TIMEZONE)
+                else:
+                    due = due.astimezone(APP_TIMEZONE)
+
+                if (
+                    due.year == self.calendar.yearShown()
+                    or due.month == self.calendar.monthShown()
+                ):
+                    assignment_dates.add(due.date())
+
+            self.calendar.assignment_dates = assignment_dates
+            self.calendar.updateCells()
 
     
     def date_selected(self):
@@ -104,7 +184,7 @@ class CalendarView(QWidget):
 
             self.render_assignments(assignments=assignments)
 
-        except Exception as exc:
+        except SQLAlchemyError as exc:
             print(f"Failed to refresh calendar assignments: {exc}")
         finally:
             db.close()
@@ -134,6 +214,14 @@ class CalendarView(QWidget):
             )
 
         self.assignment_layout.addStretch()
+
+
+    def refresh_after_sync(self):
+        """Refresh deadline indicator and assignments after syncing"""
+
+        self.refresh_deadline_indicators()
+        self.refresh_calendar()
+    
     
     def update_theme_styles(self):
 

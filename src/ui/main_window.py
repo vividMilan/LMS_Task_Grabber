@@ -203,13 +203,10 @@ class MainWindow(QMainWindow):
 
         if not success:
             msg = QMessageBox(self)
-
             msg.setWindowTitle("Sync Failed")
             msg.setText(message)
             msg.setIcon(QMessageBox.Icon.Warning)
-
             msg.exec()
-
             return
         
         
@@ -219,7 +216,7 @@ class MainWindow(QMainWindow):
             bg_color=COLORS.success.name()
         )
 
-        self.page_tasks.refresh_tasks()
+        self.refresh_assignment_views()
 
     def open_assignment(self, task):
         print(
@@ -295,4 +292,6 @@ class MainWindow(QMainWindow):
     def refresh_assignment_views(self):
         """Refresh all view that display assignments"""
         self.page_tasks.refresh_tasks()
+
+        self.page_calender.refresh_deadline_indicators()
         self.page_calender.refresh_calendar()
