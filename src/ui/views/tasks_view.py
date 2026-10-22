@@ -74,6 +74,10 @@ class TasksView(QWidget):
             placeholder="Search..."
         )
 
+        self.search_bar.search_input.textChanged.connect(
+            self.load_assingments
+        )
+
         self.filter_combo = QComboBox()
 
         self.filter_combo.addItem(
@@ -111,6 +115,34 @@ class TasksView(QWidget):
         main_layout.addLayout(search_layout)
         main_layout.addLayout(self.tasks_layout)
         main_layout.addStretch()
+
+
+    # --------------------------------------------------
+    # MATCH SEARCH QUERY
+    # --------------------------------------------------
+    def _matches_search(self, assignment: Assignment, query: str) -> bool:
+
+        query = query.strip().casefold()
+
+        if not query:
+            return True
+
+        assignment_name = assignment.name or ""
+        course_code = assignment.course_id or ""
+
+        course_name = (
+            assignment.course.name
+            if getattr(assignment, "course", None)
+            else ""
+        )
+
+        searchable_text = " ".join([
+            assignment_name,
+            str(course_code),
+            course_name
+        ]).casefold()
+
+        return query in searchable_text
 
     # --------------------------------------------------
     # THEME
@@ -292,14 +324,22 @@ class TasksView(QWidget):
             # Use the application's configured timezone.
             now = datetime.now(APP_TIMEZONE)
 
+            search_query = self.search_bar.search_input.text()
+
             # Keep only assignments matching the filter.
             filtered_assignments = [
                 assignment
                 for assignment in assignments
-                if self._matches_filter(
-                    assignment,
-                    selected_filter,
-                    now,
+                if (
+                    self._matches_filter(
+                        assignment,
+                        selected_filter,
+                        now,
+                    )
+                    and self._matches_search(
+                        assignment,
+                        search_query
+                    )
                 )
             ]
 
