@@ -245,9 +245,14 @@ class TasksView(QWidget):
             course_code=assignment.course_id,
             assignment_type=assignment.type,
             course_name=course_name,
+            is_completed=assignment.completed
         )
 
         self.tasks_layout.addWidget(task_card)
+
+        task_card.completed_changed.connect(
+            self.update_assignment_completion
+        )
 
         task_card.clicked.connect(
             self.assignment_clicked.emit
@@ -358,5 +363,24 @@ class TasksView(QWidget):
 
             self.tasks_layout.addWidget(error_label)
 
+        finally:
+            db.close()
+
+    def update_assignment_completion(self, task_id, is_completed):
+        db = SessionLocal()
+
+        try: 
+
+            assignment = db.query(Assignment).filter(Assignment.id == task_id).first()
+
+            if assignment:
+                assignment.completed = is_completed
+                db.commit()
+
+                self.load_assingments()
+
+        except SQLAlchemyError as e:
+            db.rollback()
+            print(f"Error updating task completion: {e}")
         finally:
             db.close()

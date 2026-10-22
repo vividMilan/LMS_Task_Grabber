@@ -1,12 +1,7 @@
 from datetime import datetime
 
 from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtWidgets import (
-    QHBoxLayout,
-    QLabel,
-    QVBoxLayout,
-    QWidget,
-)
+from PyQt6.QtWidgets import QCheckBox, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
 from src.domain.enums.chip_types import ChipType
 from src.ui.components.assignment_type_badge import assignmentType
@@ -19,6 +14,7 @@ from src.utils.strip_datetime import strip_due
 class TaskCard(QWidget):
 
     clicked = pyqtSignal(object)
+    completed_changed = pyqtSignal(str, bool)
 
     def __init__(
             self,
@@ -28,6 +24,7 @@ class TaskCard(QWidget):
             due: datetime | None,
             assignment_type: str,
             course_name: str,
+            is_completed: bool = False,
             parent=None,
         ):
         super().__init__(parent)
@@ -38,6 +35,7 @@ class TaskCard(QWidget):
         self.assignment_type = assignment_type
         self.course_name = course_name
         self.due = due
+        self.is_completed = is_completed
 
         self.setObjectName("taskCard")
 
@@ -77,6 +75,18 @@ class TaskCard(QWidget):
         heading_layout.setContentsMargins(0, 0, 0, 0)
         heading_layout.setSpacing(8)
 
+        self.checkbox = QCheckBox()
+        self.checkbox.setObjectName("taskCheckBox")
+        self.checkbox.setChecked(self.is_completed)
+        self.checkbox.setCursor(
+            Qt.CursorShape.PointingHandCursor
+        )
+        self.checkbox.toggled.connect(
+            self._on_checkbox_toggled
+        )
+
+        heading_layout.addWidget(self.checkbox)
+        
         if assignment_type:
             assigment_type = assignmentType(assignment_type)
             heading_layout.addWidget(assigment_type)
@@ -116,13 +126,24 @@ class TaskCard(QWidget):
         task_layout.addLayout(heading_layout)
         task_layout.addLayout(footer_layout)
 
+    def _on_checkbox_toggled(self, checked: bool) -> None:
+        self.is_completed = checked
+        self.update_theme_styles()
+        self.completed_changed.emit(self.id, checked)
+
     def update_theme_styles(self):
+
+        heading_color = COLORS.text_secondary.name() if self.is_completed else COLORS.text_primary.name()
+        font_style = "text-decoration: line-through;" if self.is_completed else "text-decoration: none;"
+        card_opacity = "0.5" if self.is_completed else "1.0"
+
         self.setStyleSheet(f"""
             QWidget#taskCard {{
                 background-color: {COLORS.card_bg.name()};
                 border: 1px solid {COLORS.border.name()};
                 border-radius: 8px;
                 padding: 16px;
+                opacity: {card_opacity};
             }}
 
             QWidget#taskCard:hover {{
@@ -130,9 +151,37 @@ class TaskCard(QWidget):
             }}
 
             QWidget#taskCard QLabel#headingLabel {{
-                color: {COLORS.text_primary.name()};
+                color: {heading_color};
                 font-size: 16px;
                 font-weight: bold;
+                {font_style}
+            }}
+
+            QCheckBox#taskCheckBox {{
+                spacing: 0px;
+            }}
+
+            QCheckBox#taskCheckBox::indicator {{
+                width: 18px; 
+                height: 18px;
+                border: 2px solid {COLORS.border.name()};
+                border-radius: 5px;
+                background-color: transparent;
+            }}
+
+            QCheckBox#taskCheckBox::indicator:hover {{
+                border-color: {COLORS.accent.name()};
+            }}
+
+            QCheckBox#taskCheckBox::indicator:checked {{
+                background-color: {COLORS.accent.name()};
+                border-color: {COLORS.border.name()};
+                image: none;
+            }}
+
+            QCheckBox#taskCheckbox::indicator:checked {{
+                border: 2px solid {COLORS.accent.name()};
+                background-color: {COLORS.accent.name()};
             }}
 
         """)
