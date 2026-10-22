@@ -1,6 +1,8 @@
 from zoneinfo import ZoneInfo
 from PyQt6.QtCore import QSettings
 
+from PyQt6.QtCore import QSettings
+
 APP_TIMEZONE = ZoneInfo("Asia/Colombo")
 
 DUE_SOON = 7
