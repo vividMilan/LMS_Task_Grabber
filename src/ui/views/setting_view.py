@@ -20,6 +20,12 @@ from src.services.credential_service import (
     get_credentials,
     save_credentials,
 )
+
+from src.config.time import (
+    get_due_soon_days,
+    set_due_soon_days
+)
+
 from src.ui.components.toast_notification import ToastNotification
 from src.ui.styles.tokens import COLORS
 
@@ -68,12 +74,16 @@ class SettingsView(QWidget):
         reset_button = QPushButton("Reset Button")
         reset_button.setObjectName("resetButton")
 
-        save_button = QPushButton("Save Button")
-        save_button.setObjectName("saveButton")
+        self.save_button = QPushButton("Save Button")
+        self.save_button.setObjectName("saveButton")
+
+        self.save_button.clicked.connect(
+            self.save_settings
+        )
 
 
         footer.addWidget(reset_button)
-        footer.addWidget(save_button)
+        footer.addWidget(self.save_button)
 
         main_layout.addWidget(self.content_stack, stretch=1)
         root_layout.addLayout(main_layout, stretch=1)
@@ -207,6 +217,39 @@ class SettingsView(QWidget):
         layout.addStretch()
         return widget
 
+    def save_settings(self):
+        due_soon_days = self.notification_combo.currentData()
+
+        if due_soon_days is None:
+            ToastNotification(
+                self,
+                text="Please selecte a reminder period",
+                bg_color=COLORS.warning.name(),
+                duration=3000
+            )
+
+            return
+
+        try: 
+            set_due_soon_days(int(due_soon_days))
+        except ValueError as e:
+            ToastNotification(
+                self,
+                text=str(e),
+                bg_color=COLORS.warning.name(),
+                duration=3000
+            )
+
+            return
+
+
+        ToastNotification(
+            self,
+            text=f"Reminder period saved as {due_soon_days} days",
+            bg_color=COLORS.success.name(),
+            duration=3000
+        )
+
     def toggle_password_visibility(self):
 
         if self.password_input.echoMode() == QLineEdit.EchoMode.Password:
@@ -280,7 +323,29 @@ class SettingsView(QWidget):
 
         layout.addLayout(heading)
 
-        notification_layout, self.notification_combo = self._create_combo_box("Start reminding me before ", ["3 Day", "5 Days", "1 Week", "2 Week", "1 Month"])
+        notification_layout, self.notification_combo = self._create_combo_box("Start reminding me before ", [])
+
+        options = [
+            ("3 Days", 3),
+            ("5 Days", 5),
+            ("1 Week", 7),
+            ("2 Weeks", 14),
+            ("1 Month", 30)
+        ]
+
+        for label, days in options:
+            self.notification_combo.addItem(label, days)
+
+        saved_days = get_due_soon_days()
+        index = self.notification_combo.findData(saved_days)
+
+        if index >= 0:
+            self.notification_combo.setCurrentIndex(index)
+
+        else:
+            self.notification_combo.setCurrentIndex(
+                self.notification_combo.findData(7)
+            )
 
         layout.addLayout(notification_layout)
         
