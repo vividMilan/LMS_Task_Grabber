@@ -79,6 +79,7 @@ class TasksView(QWidget):
         )
 
         self.filter_combo = QComboBox()
+        self.filter_type_combo = QComboBox()
 
         self.filter_combo.addItem(
             "All Tasks", "all"
@@ -96,7 +97,42 @@ class TasksView(QWidget):
             "Completed", "completed"
         )
 
+        self.filter_combo.addItem(
+            "Pending", "pending"
+        )
+
+        # type combo Items
+
+        self.filter_type_combo.addItem(
+            "All", "all"
+        )
+
+        self.filter_type_combo.addItem(
+            "Quiz", "quiz"
+        )
+
+        self.filter_type_combo.addItem(
+            "Viva Slot", "viva_slot"
+        )
+
+        self.filter_type_combo.addItem(
+            "TMA", "tma"
+        )
+
+        self.filter_type_combo.addItem(
+            "Exam", "exam"
+        )
+
+        self.filter_type_combo.addItem(
+            "Mini Project", "mini_project"
+        )
+
+
         self.filter_combo.setCursor(
+            Qt.CursorShape.PointingHandCursor
+        )
+
+        self.filter_type_combo.setCursor(
             Qt.CursorShape.PointingHandCursor
         )
 
@@ -104,8 +140,13 @@ class TasksView(QWidget):
             self.load_assingments
         )
 
+        self.filter_type_combo.currentIndexChanged.connect(
+            self.load_assingments
+        )
+
         search_layout.addWidget(self.search_bar, 1)
         search_layout.addWidget(self.filter_combo)
+        search_layout.addWidget(self.filter_type_combo)
 
         # Task cards
         self.tasks_layout = QVBoxLayout()
@@ -155,7 +196,7 @@ class TasksView(QWidget):
             color: {COLORS.text_primary.name()};
         """)
 
-        self.filter_combo.setStyleSheet(f"""
+        self.setStyleSheet(f"""
             QComboBox {{
                 color: {COLORS.text_primary.name()};
                 background-color: {COLORS.card_bg.name()};
@@ -197,7 +238,7 @@ class TasksView(QWidget):
     # --------------------------------------------------
 
     @staticmethod
-    def _normalise_due(due):
+    def _normalise_due(due: datetime) -> datetime:
         """
         Convert a deadline to the application's timezone.
 
@@ -216,6 +257,18 @@ class TasksView(QWidget):
     # FILTERING
     # --------------------------------------------------
 
+    def _matches_type_filter(
+        self,
+        assignment: AssignmentData,
+        selected_filter
+    ): 
+
+        if selected_filter == "all":
+            return True
+        
+        if selected_filter == assignment.type:
+            return True
+
     def _matches_filter(
         self,
         assignment: AssignmentData,
@@ -231,6 +284,9 @@ class TasksView(QWidget):
         # Completed assignments have their own category.
         if selected_filter == "completed":
             return assignment.completed
+
+        if selected_filter == "pending":
+            return not assignment.completed
 
         # The remaining categories contain incomplete tasks.
         if assignment.completed:
@@ -321,6 +377,10 @@ class TasksView(QWidget):
                 self.filter_combo.currentData()
             )
 
+            selected_type_filter = (
+                self.filter_type_combo.currentData()
+            )
+
             # Use the application's configured timezone.
             now = datetime.now(APP_TIMEZONE)
 
@@ -340,11 +400,15 @@ class TasksView(QWidget):
                         assignment,
                         search_query
                     )
+                    and self._matches_type_filter(
+                        assignment,
+                        selected_type_filter
+                    )
                 )
             ]
 
             # Sort by deadline, placing undated tasks last.
-            def sort_key(assignment):
+            def sort_key(assignment: AssignmentData):
                 due = self._normalise_due(
                     assignment.due
                 )
@@ -384,6 +448,7 @@ class TasksView(QWidget):
                 f"Loaded {len(filtered_assignments)} "
                 f"assignments using filter: "
                 f"{selected_filter}"
+                f"{selected_type_filter}"
             )
 
         except SQLAlchemyError as exc:
