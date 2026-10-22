@@ -15,17 +15,12 @@ from PyQt6.QtWidgets import (
     QWidget,
 )
 
+from src.config.time import get_due_soon_days, set_due_soon_days
 from src.services.credential_service import (
     delete_credentials,
     get_credentials,
     save_credentials,
 )
-
-from src.config.time import (
-    get_due_soon_days,
-    set_due_soon_days
-)
-
 from src.ui.components.toast_notification import ToastNotification
 from src.ui.styles.tokens import COLORS
 

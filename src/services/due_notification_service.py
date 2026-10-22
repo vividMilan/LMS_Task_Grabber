@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from src.config.time import APP_TIMEZONE, DUE_SOON
+from src.config.time import APP_TIMEZONE, get_due_soon_days
 from src.database.connection import SessionLocal
 from src.database.models import Assignment
 
@@ -9,8 +9,10 @@ def check_deadlines() -> dict:
 
     print("Deadline check started!")
 
+    due_soon_days = get_due_soon_days()
+
     now = datetime.now(APP_TIMEZONE)
-    due_soon_limit = now + timedelta(days=DUE_SOON)
+    due_soon_limit = now + timedelta(days=due_soon_days)
 
     overdue = []
     due_soon = []
