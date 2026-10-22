@@ -211,7 +211,8 @@ class CalendarView(QWidget):
                 due=assignment.due,
                 course_code=assignment.course_id,
                 assignment_type=assignment.type,
-                course_name=assignment.course.name
+                course_name=assignment.course.name,
+                is_completed=assignment.completed
             )
 
             task_card.clicked.connect(
