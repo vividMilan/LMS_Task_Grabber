@@ -312,7 +312,7 @@ class AssignmentView(QWidget):
         time_remaining_text = QLabel("Time Remaining")
         time_remaining_text.setObjectName("timeRemainingText")
 
-        self.time_remaining = QLabel("")
+        self.time_remaining = QLabel("4565")
         self.time_remaining.setObjectName("timeRemaining")
 
         time_remaining_card_layout.addWidget(time_remaining_text)
@@ -397,7 +397,7 @@ class AssignmentView(QWidget):
         # =====================================================
         # FILES CARD
         # =====================================================
-        if task.file_count() > 0:
+        if len(task.files)() > 0:
             
             files_card = QFrame()
 
@@ -485,10 +485,16 @@ class AssignmentView(QWidget):
 
     def update_deadline(self, due: datetime):
 
-        remaining_text = ""
-
         if not due:
             self.time_remaining.setText("No Deadline")
+            return
+
+        if due.tzinfo is None:
+            due = due.replace(tzinfo=APP_TIMEZONE)
+        else:
+            due = due.astimezone(APP_TIMEZONE)
+
+        remaining_text = ""
 
         remaining = due - datetime.now(APP_TIMEZONE)
 

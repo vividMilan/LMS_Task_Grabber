@@ -26,7 +26,7 @@ class TaskCard(QWidget):
             course_name: str,
             is_completed: bool = False,
             parent=None,
-        ):
+    ):
         super().__init__(parent)
 
         self.id = id
