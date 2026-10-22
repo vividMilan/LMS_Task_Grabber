@@ -43,9 +43,9 @@ COLORS = ColorPalette(
     border=QColor("#313244"),
     badge_viva=QColor("#f38ba8"),
     badge_tma=QColor("#fab387"),
-    success=QColor("#1E5E3A"),
+    success=QColor("#10b981"),
     warning=QColor("#9A5800"),
-    error=QColor("#A31D1D")
+    error=QColor("#ef4444")
 )
 
 

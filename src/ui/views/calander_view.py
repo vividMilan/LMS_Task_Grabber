@@ -8,6 +8,7 @@ from PyQt6.QtWidgets import (
     QScrollArea,
     QVBoxLayout,
     QWidget,
+    QLabel
 )
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -124,6 +125,7 @@ class CalendarView(QWidget):
         self.assignment_layout.setSpacing(8)
 
         calender_layout.addWidget(self.calendar)
+        calender_layout.addWidget(self.create_calendar_legend())
         calender_layout.addStretch()
 
         self.scroll_area.setWidget(self.scroll_content)
@@ -227,6 +229,63 @@ class CalendarView(QWidget):
 
         self.refresh_deadline_indicators()
         self.refresh_calendar()
+
+
+    def create_calendar_legend(self):
+        legend = QWidget()
+        
+        # Give the legend a sleek, modern card-like container background
+        legend.setStyleSheet("""
+            QWidget {
+                background-color: rgba(255, 255, 255, 0.02);
+                border: 1px solid rgba(255, 255, 255, 0.05);
+                border-radius: 8px;
+            }
+        """)
+        
+        layout = QHBoxLayout(legend)
+        layout.setContentsMargins(14, 10, 14, 10)
+        layout.setSpacing(20)
+
+        items = [
+            (COLORS.accent.name(), "Assignment due"),
+            (COLORS.success.name(), "Completed"),
+            (COLORS.error.name(), "Overdue"),
+        ]
+
+        for color, text in items:
+            item = QWidget()
+            # Reset background/border for inner items so they inherit cleanly
+            item.setStyleSheet("background: transparent; border: none;")
+            
+            item_layout = QHBoxLayout(item)
+            item_layout.setContentsMargins(0, 0, 0, 0)
+            item_layout.setSpacing(8)
+
+            marker = QLabel()
+            marker.setFixedSize(10, 10)
+            # Modern circular dots instead of squares
+            marker.setStyleSheet(
+                f"background-color: {color};"
+                "border-radius: 5px;"
+            )
+
+            label = QLabel(text)
+            # Clean typography styling
+            label.setStyleSheet(
+                f"color: {COLORS.text_primary.name()};"
+                "font-size: 12px;"
+                "font-weight: 500;"
+            )
+
+            item_layout.addWidget(marker)
+            item_layout.addWidget(label)
+
+            layout.addWidget(item)
+
+        layout.addStretch()
+
+        return legend
     
     
     def update_theme_styles(self):
