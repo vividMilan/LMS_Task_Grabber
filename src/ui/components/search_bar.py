@@ -17,19 +17,19 @@ class SearchBar(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setAlignment(Qt.AlignmentFlag.AlignHCenter)
 
-        input = QLineEdit()
-        input.setContentsMargins(0, 0, 0, 0)
-        input.setObjectName("searchInput")
-        input.setPlaceholderText(placeholder)
-        input.setClearButtonEnabled(True)
+        self.search_input = QLineEdit()
+        self.search_input.setContentsMargins(0, 0, 0, 0)
+        self.search_input.setObjectName("searchInput")
+        self.search_input.setPlaceholderText(placeholder)
+        self.search_input.setClearButtonEnabled(True)
 
         # Add magnifying glass icon on the left on QLine
         search_icon = qta.icon("mdi.magnify", color="#94A3B8")
-        input.addAction(search_icon, QLineEdit.ActionPosition.LeadingPosition)
+        self.search_input.addAction(search_icon, QLineEdit.ActionPosition.LeadingPosition)
 
         self.setStyleSheet("border-radius: 16px;")
 
-        layout.addWidget(input)
+        layout.addWidget(self.search_input)
 
         self.apply_styles()
 
