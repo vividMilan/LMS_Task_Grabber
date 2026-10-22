@@ -1,4 +1,5 @@
 from zoneinfo import ZoneInfo
+from PyQt6.QtCore import QSettings
 
 from PyQt6.QtCore import QSettings
 
