@@ -5,10 +5,10 @@ from PyQt6.QtWidgets import (
     QCalendarWidget,
     QFrame,
     QHBoxLayout,
+    QLabel,
     QScrollArea,
     QVBoxLayout,
     QWidget,
-    QLabel
 )
 from sqlalchemy.exc import SQLAlchemyError
 
