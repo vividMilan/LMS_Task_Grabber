@@ -24,6 +24,8 @@ from src.utils.strip_datetime import strip_due
 
 class AssignmentView(QWidget):
 
+    assignment_updated = pyqtSignal()
+
     # Emitted when user clicks "Back to assignments"
     back_requested = pyqtSignal()
 

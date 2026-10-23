@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import QFrame, QLabel, QVBoxLayout, QWidget
 from src.ui.styles.tokens import COLORS
 
 COLOR_MAP = {
-    "incomplete": "#4CAF50",
+    "pending": "#4CAF50",
     "due soon": "#FF9800",
     "overdue": "#F44336",
 }

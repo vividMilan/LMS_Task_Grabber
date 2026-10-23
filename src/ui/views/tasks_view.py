@@ -21,11 +21,14 @@ from src.ui.components.search_bar import SearchBar
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
 
+from src.services.task_service import TaskService
+
 
 class TasksView(QWidget):
 
     assignment_clicked = pyqtSignal(object)
     sync_requested = pyqtSignal()
+    assignment_updated = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -476,14 +479,14 @@ class TasksView(QWidget):
 
         try: 
 
-            assignment = db.query(Assignment).filter(Assignment.id == task_id).first()
+            updated = TaskService.set_completed(
+                task_id=task_id,
+                is_completed=is_completed
+            )
 
-            if assignment:
-                assignment.completed = is_completed
-                db.commit()
-
-                self.load_assingments()
-
+            if updated:
+                self.assignment_updated.emit()
+    
         except SQLAlchemyError as e:
             db.rollback()
             print(f"Error updating task completion: {e}")

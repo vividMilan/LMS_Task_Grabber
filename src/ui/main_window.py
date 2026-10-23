@@ -150,6 +150,18 @@ class MainWindow(QMainWindow):
 
         self.apply_styles()
 
+        self.page_dashboard.assignment_updated.connect(
+            self.refresh_all_views
+        )
+
+        self.page_tasks.assignment_updated.connect(
+            self.refresh_all_views
+        )
+
+        self.page_calender.assignment_updated.connect(
+            self.refresh_all_views
+        )
+
     def check_deadline_notification(self, deadlines=None):
 
         if deadlines is None:
@@ -295,3 +307,7 @@ class MainWindow(QMainWindow):
 
         self.page_calender.refresh_deadline_indicators()
         self.page_calender.refresh_calendar()
+
+    def refresh_all_views(self):
+        self.page_dashboard.refresh_dashboard()
+        self.page_tasks.load_assingments()

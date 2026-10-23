@@ -3,6 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from src.database.connection import SessionLocal
 from src.database.models import Assignment
 
+
 class TaskService:
 
     @staticmethod
@@ -25,7 +26,7 @@ class TaskService:
             return True
             
             
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             db.rollback()
             raise
         finally:

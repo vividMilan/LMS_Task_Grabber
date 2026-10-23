@@ -1,23 +1,26 @@
 from datetime import datetime, timedelta
-from zoneinfo import ZoneInfo
 
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import joinedload
 
 from src.config.time import APP_TIMEZONE, get_due_soon_days
 from src.database.connection import SessionLocal
 from src.database.models import Assignment
 from src.database.repositories.assignment_repository import assignment_repo
+from src.domain.types.assignment import AssignmentData
+from src.services.task_service import TaskService
 from src.ui.components.summery_card import SummaryCard
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
 
-from src.domain.types.assignment import AssignmentData
+from PyQt6.QtCore import pyqtSignal
 
-from sqlalchemy.orm import joinedload
-
-local_timezone = ZoneInfo("Asia/Colombo")
 
 class DashboardView(QWidget):
+
+    assignment_updated = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.setObjectName("dashboardView")
@@ -38,7 +41,7 @@ class DashboardView(QWidget):
         self.label = QLabel("Welcome to the Dashboard! 👋")
 
         # Date Section
-        today = datetime.now(local_timezone).strftime("%A, %B %d, %Y")
+        today = datetime.now(APP_TIMEZONE).strftime("%A, %B %d, %Y")
         self.date_label = QLabel(f"{today}")
 
         heading_layout.setSpacing(4)
@@ -51,39 +54,19 @@ class DashboardView(QWidget):
         self.summary_layout = QHBoxLayout()
         self.summary_layout.setObjectName("summaryLayout")
 
-        self.add_summary_cards()
-
         # Upcoming Tasks Section
-        upcoming_tasks_layout = QVBoxLayout()
         self.upcoming_tasks_label = QLabel("Upcoming Tasks")
+        
+        self.upcoming_tasks_layout = QVBoxLayout()
+        self.upcoming_tasks_layout.setSpacing(12)
 
         
         layout.addLayout(heading_layout)
         layout.addLayout(self.summary_layout)
-        layout.addLayout(upcoming_tasks_layout)
-        upcoming_tasks_layout.addWidget(self.upcoming_tasks_label)
+        layout.addWidget(self.upcoming_tasks_label)
+        layout.addLayout(self.upcoming_tasks_layout)
 
-        filtered_assignments = self._get_upcoming_tasks()
-
-        for assignment in filtered_assignments:
-
-            course_name = (
-                assignment.course.name
-                if getattr(assignment, "course", None)
-                else ""
-            )
-
-            task_card = TaskCard(
-                id=assignment.id,
-                title=assignment.name,
-                due=assignment.due,
-                assignment_type=assignment.type,
-                course_code=assignment.course_id,
-                course_name=course_name,
-                is_completed=assignment.completed,
-            )
-
-            upcoming_tasks_layout.addWidget(task_card)
+        self.refresh_dashboard()
 
         layout.addStretch()
 
@@ -126,6 +109,18 @@ class DashboardView(QWidget):
         finally:
             db.close()
 
+    def update_assignment_completion(self, task_id: str, is_completed: bool):
+        try:
+            updated = TaskService.set_completed(
+                task_id=task_id,
+                is_completed=is_completed
+            )
+
+            if updated:
+                self.assignment_updated.emit()
+
+        except SQLAlchemyError as exc:
+            print(f"Error updating task completion: {exc}")
 
     def add_summary_cards(self):
 
@@ -138,13 +133,93 @@ class DashboardView(QWidget):
         db.close()
 
         # Completed Tasks
-        completedTasks = SummaryCard("incomplete", completed_count)
+        completedTasks = SummaryCard("pending", completed_count)
         dueSoonTasks = SummaryCard("due soon", due_soon_count)
         overdueTasks = SummaryCard("overdue", overdue_count)
         
         self.summary_layout.addWidget(completedTasks)
         self.summary_layout.addWidget(dueSoonTasks)
         self.summary_layout.addWidget(overdueTasks)
+
+    def refresh_dashboard(self):
+        self.refresh_summary_card()
+        self.refresh_upcoming_tasks()
+
+    def refresh_summary_card(self):
+
+        while self.summary_layout.count():
+            item = self.summary_layout.takeAt(0)
+            widget = item.widget()
+
+            if widget is not None:
+                widget.deleteLater()
+
+        db = SessionLocal()
+
+        try:
+            pending_count = (
+                db.query(Assignment).filter(Assignment.completed.is_(False)).count()
+            )
+
+            due_soon_count = len(
+                assignment_repo.get_due_soon(db)
+            )
+
+            overdue_count = len(
+                assignment_repo.get_overdue(db)
+            )
+        finally:
+            db.close()
+
+        # Create the updated cards.
+
+        completed_card = SummaryCard(
+            "pending",
+            pending_count
+        )
+
+        due_soon_card = SummaryCard(
+            "due soon",
+            due_soon_count
+        )
+
+        overdue_card = SummaryCard(
+            "overdue",
+            overdue_count
+        )
+
+        self.summary_layout.addWidget(completed_card)
+        self.summary_layout.addWidget(due_soon_card)
+        self.summary_layout.addWidget(overdue_card)
+
+    def refresh_upcoming_tasks(self):
+        while self.upcoming_tasks_layout.count():
+            item = self.upcoming_tasks_layout.takeAt(0)
+            widget = item.widget()
+
+            if widget is not None:
+                widget.deleteLater()
+
+        for assignment in self._get_upcoming_tasks():
+            task_card = TaskCard(
+                id=assignment.id,
+                is_completed=assignment.completed,
+                due=assignment.due,
+                assignment_type=assignment.type,
+                course_code=assignment.course_id,
+                course_name=(
+                    assignment.course.name if assignment.course else ""
+                ),
+                title=assignment.name
+            )
+            
+
+            task_card.completed_changed.connect(
+                self.update_assignment_completion
+            )
+
+            self.upcoming_tasks_layout.addWidget(task_card)
+
 
     def update_theme_styles(self):
         self.label.setStyleSheet(f"""
