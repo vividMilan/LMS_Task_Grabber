@@ -1,12 +1,19 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from zoneinfo import ZoneInfo
 
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 
+from src.config.time import APP_TIMEZONE, get_due_soon_days
 from src.database.connection import SessionLocal
+from src.database.models import Assignment
 from src.database.repositories.assignment_repository import assignment_repo
 from src.ui.components.summery_card import SummaryCard
+from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
+
+from src.domain.types.assignment import AssignmentData
+
+from sqlalchemy.orm import joinedload
 
 local_timezone = ZoneInfo("Asia/Colombo")
 
@@ -29,8 +36,6 @@ class DashboardView(QWidget):
         # Heading Section
         heading_layout = QVBoxLayout()
         self.label = QLabel("Welcome to the Dashboard! 👋")
-        
-
 
         # Date Section
         today = datetime.now(local_timezone).strftime("%A, %B %d, %Y")
@@ -51,14 +56,76 @@ class DashboardView(QWidget):
         # Upcoming Tasks Section
         upcoming_tasks_layout = QVBoxLayout()
         self.upcoming_tasks_label = QLabel("Upcoming Tasks")
+
         
-        upcoming_tasks_layout.addWidget(self.upcoming_tasks_label)
-
-
         layout.addLayout(heading_layout)
         layout.addLayout(self.summary_layout)
         layout.addLayout(upcoming_tasks_layout)
+        upcoming_tasks_layout.addWidget(self.upcoming_tasks_label)
+
+        filtered_assignments = self._get_upcoming_tasks()
+
+        for assignment in filtered_assignments:
+
+            course_name = (
+                assignment.course.name
+                if getattr(assignment, "course", None)
+                else ""
+            )
+
+            task_card = TaskCard(
+                id=assignment.id,
+                title=assignment.name,
+                due=assignment.due,
+                assignment_type=assignment.type,
+                course_code=assignment.course_id,
+                course_name=course_name,
+                is_completed=assignment.completed,
+            )
+
+            upcoming_tasks_layout.addWidget(task_card)
+
         layout.addStretch()
+
+    def _get_upcoming_tasks(self) -> list[AssignmentData]:
+        due_soon_days = get_due_soon_days()
+        now = datetime.now(APP_TIMEZONE)
+        deadline = now + timedelta(days=due_soon_days)
+
+        db = SessionLocal()
+
+        filtered_assignments = []
+
+
+        try:
+            assignments = (
+                db.query(Assignment).options(joinedload(Assignment.course)).all()
+            )
+            
+            for assignment in assignments:
+
+                due = assignment.due
+
+                if assignment.completed:
+                    continue
+
+                if due.tzinfo is None:
+                    due = due.replace(tzinfo=APP_TIMEZONE)
+                else:
+                    due = due.astimezone(APP_TIMEZONE)
+
+                if now < due <= deadline:
+                    filtered_assignments.append(assignment)
+
+            filtered_assignments.sort(
+                key=lambda assignment: assignment.due
+            )
+
+            return filtered_assignments
+
+        finally:
+            db.close()
+
 
     def add_summary_cards(self):
 
