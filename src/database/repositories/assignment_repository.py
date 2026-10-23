@@ -4,7 +4,7 @@ from datetime import datetime, time, timedelta
 
 from sqlalchemy.orm import Session, joinedload
 
-from src.config.time import APP_TIMEZONE
+from src.config.time import APP_TIMEZONE, get_due_soon_days
 
 from ..models import Assignment
 from .base_repository import BaseRepository
@@ -90,7 +90,7 @@ class AssignmentRepository(BaseRepository[Assignment]):
                 .filter(
                     Assignment.completed == False,
                     Assignment.due >= datetime.now(APP_TIMEZONE),
-                    Assignment.due <= (datetime.now(APP_TIMEZONE) + timedelta(days=5))
+                    Assignment.due <= (datetime.now(APP_TIMEZONE) + timedelta(days=get_due_soon_days()))
                 )
                 .order_by(Assignment.due.asc())
                 .all()
