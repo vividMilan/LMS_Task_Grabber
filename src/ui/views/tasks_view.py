@@ -82,6 +82,12 @@ class TasksView(QWidget):
         self.filter_type_combo = QComboBox()
 
         self.filter_combo.addItem(
+            "Pending", "pending"
+        )
+        self.filter_combo.addItem(
+            "Completed", "completed"
+        )
+        self.filter_combo.addItem(
             "All Tasks", "all"
         )
         self.filter_combo.addItem(
@@ -93,13 +99,7 @@ class TasksView(QWidget):
         self.filter_combo.addItem(
             "Next 7 Days", "week"
         )
-        self.filter_combo.addItem(
-            "Completed", "completed"
-        )
 
-        self.filter_combo.addItem(
-            "Pending", "pending"
-        )
 
         # type combo Items
 
