@@ -17,10 +17,9 @@ from src.database.connection import SessionLocal
 from src.database.models import Assignment
 from src.database.repositories.assignment_repository import assignment_repo
 from src.domain.types.assignment import AssignmentData
+from src.services.task_service import TaskService
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
-
-from src.services.task_service import TaskService
 
 
 class AssignmentCalendar(QCalendarWidget):

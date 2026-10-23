@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
@@ -13,8 +14,6 @@ from src.services.task_service import TaskService
 from src.ui.components.summery_card import SummaryCard
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
-
-from PyQt6.QtCore import pyqtSignal
 
 
 class DashboardView(QWidget):
