@@ -75,9 +75,6 @@ class AssignmentCalendar(QCalendarWidget):
 
             painter.restore()
 
-
-
-
 class CalendarView(QWidget):
 
     assignment_clicked = pyqtSignal(object)
@@ -222,6 +219,18 @@ class CalendarView(QWidget):
     def render_assignments(self, assignments: list[AssignmentData]):
 
         self.clear_assignments()
+
+        if not assignments:
+            empty_text = QLabel("No assignments on this date")
+            empty_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            empty_text.setStyleSheet(f"""
+                QLabel {{
+                    color: {COLORS.text_secondary.name()};
+                    font-size: {FONT_SIZES.lg}px;
+                }}
+            """)
+
+            self.assignment_layout.addWidget(empty_text)
 
         # Add task cards
         for assignment in assignments:
