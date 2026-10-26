@@ -9,10 +9,12 @@ from PyQt6.QtWidgets import (
     QSystemTrayIcon,
     QWidget,
 )
+from sqlalchemy.exc import SQLAlchemyError
 
 from src.services.due_notification_service import check_deadlines
 from src.services.sheduler_service import AppScheduler
 from src.services.sync_service import sync_assignments
+from src.services.task_service import TaskService
 from src.ui.components.sidebar import Sidebar
 from src.ui.components.spinner import Spinner
 from src.ui.components.toast_notification import ToastNotification
@@ -22,10 +24,6 @@ from src.ui.views.calander_view import CalendarView
 from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
 from src.ui.views.tasks_view import TasksView
-
-from src.services.task_service import TaskService
-
-from sqlalchemy.exc import SQLAlchemyError
 
 
 class ScrapperWorker(QThread):

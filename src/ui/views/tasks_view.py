@@ -17,7 +17,6 @@ from src.config.time import APP_TIMEZONE
 from src.database.connection import SessionLocal
 from src.database.models import Assignment
 from src.domain.types.assignment import AssignmentData
-from src.services.task_service import TaskService
 from src.ui.components.search_bar import SearchBar
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
