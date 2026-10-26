@@ -37,3 +37,6 @@ requirements.md
 build/
 dist/
 *.spec
+
+# pre commit 
+.pre-commit-config.yaml
