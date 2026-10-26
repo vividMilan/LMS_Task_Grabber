@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QFrame,
     QHBoxLayout,
@@ -20,7 +20,7 @@ from src.domain.types.assignment import AssignmentData
 from src.services.task_service import TaskService
 from src.ui.components.summery_card import SummaryCard
 from src.ui.components.task_card import TaskCard
-from src.ui.styles.tokens import COLORS
+from src.ui.styles.tokens import COLORS, FONT_SIZES
 
 
 class DashboardView(QWidget):
@@ -290,7 +290,26 @@ class DashboardView(QWidget):
             if widget is not None:
                 widget.deleteLater()
 
-        for assignment in self._get_upcoming_tasks():
+        assignments = self._get_upcoming_tasks()
+
+        if not assignments:
+
+            label = QLabel("No Upcoming assingments")
+
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+            label.setStyleSheet(f"""
+                QLabel {{
+                    color: {COLORS.text_secondary.name()};
+                    font-size: {FONT_SIZES.md}px;
+                }}
+
+            """)
+
+            self.upcoming_tasks_layout.addWidget(label)
+
+        for assignment in assignments:
+
             task_card = TaskCard(
                 id=assignment.id,
                 is_completed=assignment.completed,
