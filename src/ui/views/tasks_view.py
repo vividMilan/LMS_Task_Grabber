@@ -17,11 +17,10 @@ from src.config.time import APP_TIMEZONE
 from src.database.connection import SessionLocal
 from src.database.models import Assignment
 from src.domain.types.assignment import AssignmentData
+from src.services.task_service import TaskService
 from src.ui.components.search_bar import SearchBar
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
-
-from src.services.task_service import TaskService
 
 
 class TasksView(QWidget):
@@ -29,6 +28,7 @@ class TasksView(QWidget):
     assignment_clicked = pyqtSignal(object)
     sync_requested = pyqtSignal()
     assignment_updated = pyqtSignal()
+    completed_changed = pyqtSignal(str, bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -342,7 +342,7 @@ class TasksView(QWidget):
         self.tasks_layout.addWidget(task_card)
 
         task_card.completed_changed.connect(
-            self.update_assignment_completion
+            self.completed_changed.emit
         )
 
         task_card.clicked.connect(
@@ -471,24 +471,5 @@ class TasksView(QWidget):
 
             self.tasks_layout.addWidget(error_label)
 
-        finally:
-            db.close()
-
-    def update_assignment_completion(self, task_id, is_completed):
-        db = SessionLocal()
-
-        try: 
-
-            updated = TaskService.set_completed(
-                task_id=task_id,
-                is_completed=is_completed
-            )
-
-            if updated:
-                self.assignment_updated.emit()
-    
-        except SQLAlchemyError as e:
-            db.rollback()
-            print(f"Error updating task completion: {e}")
         finally:
             db.close()

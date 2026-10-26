@@ -17,10 +17,9 @@ from src.database.connection import SessionLocal
 from src.database.models import Assignment
 from src.database.repositories.assignment_repository import assignment_repo
 from src.domain.types.assignment import AssignmentData
+from src.services.task_service import TaskService
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS, FONT_SIZES
-
-from src.services.task_service import TaskService
 
 
 class AssignmentCalendar(QCalendarWidget):
@@ -67,6 +66,7 @@ class CalendarView(QWidget):
 
     assignment_clicked = pyqtSignal(object)
     assignment_updated = pyqtSignal()
+    completed_changed = pyqtSignal(str, bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -225,7 +225,7 @@ class CalendarView(QWidget):
             )
 
             task_card.completed_changed.connect(
-                self.update_assignment_completion
+                self.completed_changed.emit
             )
 
             self.assignment_layout.addWidget(
@@ -296,23 +296,6 @@ class CalendarView(QWidget):
         layout.addStretch()
 
         return legend
-
-    def update_assignment_completion(
-        self,
-        task_id: str,
-        is_completed: bool
-    ):
-        try:
-            updated = TaskService.set_completed(
-                task_id=task_id,
-                is_completed=is_completed
-            )
-
-            if updated:
-                self.assignment_updated.emit()
-
-        except SQLAlchemyError as e:
-            print(f"Error updating task completion: {e}")
     
     
     def update_theme_styles(self):
