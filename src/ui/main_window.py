@@ -23,6 +23,10 @@ from src.ui.views.dashboard_view import DashboardView
 from src.ui.views.setting_view import SettingsView
 from src.ui.views.tasks_view import TasksView
 
+from src.services.task_service import TaskService
+
+from sqlalchemy.exc import SQLAlchemyError
+
 
 class ScrapperWorker(QThread):
     finished_signal = pyqtSignal(bool, str) # Emits success status and message
@@ -150,16 +154,16 @@ class MainWindow(QMainWindow):
 
         self.apply_styles()
 
-        self.page_dashboard.assignment_updated.connect(
-            self.refresh_all_views
+        self.page_dashboard.completed_changed.connect(
+            self.update_assignment_completion
         )
 
-        self.page_tasks.assignment_updated.connect(
-            self.refresh_all_views
+        self.page_tasks.completed_changed.connect(
+            self.update_assignment_completion
         )
 
-        self.page_calender.assignment_updated.connect(
-            self.refresh_all_views
+        self.page_calender.completed_changed.connect(
+            self.update_assignment_completion
         )
 
     def check_deadline_notification(self, deadlines=None):
@@ -299,6 +303,24 @@ class MainWindow(QMainWindow):
             QSystemTrayIcon.MessageIcon.Warning,
             5000,
         )
+
+
+    def update_assignment_completion(
+        self,
+        task_id: str,
+        is_completed: bool
+    ) -> None:
+        try:
+            updated = TaskService.set_completed(
+                task_id=task_id,
+                is_completed=is_completed
+            )
+
+            if updated:
+                self.refresh_all_views()
+
+        except SQLAlchemyError as e:
+            print(f"Error updating task completion: {e}")
 
 
     def refresh_assignment_views(self):

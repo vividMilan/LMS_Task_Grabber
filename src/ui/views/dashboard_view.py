@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
@@ -14,12 +15,12 @@ from src.ui.components.summery_card import SummaryCard
 from src.ui.components.task_card import TaskCard
 from src.ui.styles.tokens import COLORS
 
-from PyQt6.QtCore import pyqtSignal
-
 
 class DashboardView(QWidget):
 
     assignment_updated = pyqtSignal()
+    completed_changed = pyqtSignal(str, bool)
+
 
     def __init__(self):
         super().__init__()
@@ -215,7 +216,7 @@ class DashboardView(QWidget):
             
 
             task_card.completed_changed.connect(
-                self.update_assignment_completion
+                self.completed_changed.emit
             )
 
             self.upcoming_tasks_layout.addWidget(task_card)
