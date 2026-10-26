@@ -1,7 +1,14 @@
 from datetime import datetime, timedelta
 
 from PyQt6.QtCore import pyqtSignal
-from PyQt6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PyQt6.QtWidgets import (
+    QFrame,
+    QHBoxLayout,
+    QLabel,
+    QProgressBar,
+    QVBoxLayout,
+    QWidget,
+)
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
@@ -64,6 +71,7 @@ class DashboardView(QWidget):
         
         layout.addLayout(heading_layout)
         layout.addLayout(self.summary_layout)
+        layout.addWidget(self.create_progress_bar())
         layout.addWidget(self.upcoming_tasks_label)
         layout.addLayout(self.upcoming_tasks_layout)
 
@@ -110,6 +118,89 @@ class DashboardView(QWidget):
         finally:
             db.close()
 
+
+    def create_progress_bar(self):
+
+        self.progress_frame = QFrame()
+        self.progress_frame.setObjectName("progressFrame")
+
+        self.progress_title = QLabel("Overall Progression")
+        self.progress_title.setObjectName("progressTitle")
+
+        self.progress_label = QLabel("5%")
+        self.progress_label.setObjectName("progressValue")
+
+        self.progress_bar = QProgressBar()
+        self.progress_bar.setRange(0, 100)
+        self.progress_bar.setValue(20)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.setFixedHeight(10)
+
+        self.progress_frame.setStyleSheet(f"""
+
+            QFrame#progressFrame {{
+                background-color: {COLORS.card_bg.name()};
+                border-radius: 12px;
+            }}
+
+            QLabel#progressTitle {{
+                font-size: 16px;
+                font-weight: bold;
+                color: {COLORS.text_primary.name()};
+            }}
+
+            QLabel#progressValue {{
+                font-size: 30px;
+                color: {COLORS.accent.name()};
+                font-weight: bold;
+            }}
+
+            QProgressBar {{
+                background-color: {COLORS.dark_bg.name()};
+                border: none;
+                border-radius: 5px;
+            }}
+
+            QProgressBar::chunk {{
+                background-color: {COLORS.accent.name()};
+                border-radius: 5px;
+            }}
+        """)
+
+        self.progress_layout = QVBoxLayout(self.progress_frame)
+        self.progress_layout.addWidget(self.progress_title)
+        self.progress_layout.addWidget(self.progress_label)
+        self.progress_layout.addWidget(self.progress_bar)
+
+        return self.progress_frame
+
+    def refresh_progress(self):
+
+        db = SessionLocal()
+
+        try:
+            total = db.query(Assignment).count()
+
+            completed = db.query(Assignment).filter(
+                Assignment.completed.is_(True)
+            ).count()
+
+            percentage = round(
+                completed/total * 100
+            ) if total > 0 else 0
+
+            self.progress_label.setText(f"{percentage}%")
+
+            self.progress_bar.setValue(int(percentage))
+
+
+
+        except SQLAlchemyError as e:
+            print(f"Problem while refreshing progress: {e}")
+
+        finally:
+            db.close()
+
     def update_assignment_completion(self, task_id: str, is_completed: bool):
         try:
             updated = TaskService.set_completed(
@@ -142,9 +233,7 @@ class DashboardView(QWidget):
         self.summary_layout.addWidget(dueSoonTasks)
         self.summary_layout.addWidget(overdueTasks)
 
-    def refresh_dashboard(self):
-        self.refresh_summary_card()
-        self.refresh_upcoming_tasks()
+    
 
     def refresh_summary_card(self):
 
@@ -239,3 +328,8 @@ class DashboardView(QWidget):
             font-weight: bold;
             color: {COLORS.text_primary.name()}
         """)
+
+    def refresh_dashboard(self):
+        self.refresh_summary_card()
+        self.refresh_upcoming_tasks()
+        self.refresh_progress()
