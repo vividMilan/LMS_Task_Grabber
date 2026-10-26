@@ -5,10 +5,10 @@ from PyQt6.QtWidgets import (
     QCalendarWidget,
     QFrame,
     QHBoxLayout,
+    QLabel,
     QScrollArea,
     QVBoxLayout,
     QWidget,
-    QLabel
 )
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -32,6 +32,23 @@ class AssignmentCalendar(QCalendarWidget):
         # Draw the normal calendar cell first 
 
         super().paintCell(painter, rect, date)
+
+        if date == QDate.currentDate():
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.setBrush(QBrush(QColor(COLORS.accent.name())))
+
+            painter.drawRoundedRect(
+                rect.adjusted(3, 3, -3, -3),
+                6,
+                6
+            )
+
+            painter.setPen(QPen(QColor("#ffffff")))
+            painter.drawText(
+                rect,
+                Qt.AlignmentFlag.AlignCenter,
+                str(date.day())
+            )
 
         # Draw a dot if an assignment is due on this date
         if date.toPyDate() in self.assignment_dates:
