@@ -1,0 +1,75 @@
+name: Build and Release LMS tracker
+
+on:
+    push:
+        tags:
+            - "v*"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+jobs:
+    build-windows:
+        runs-on: windows-latest
+
+        env:
+            PLAYWRIGHT_BROWSERS_PATH: "0"
+        
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up python
+              uses: actions/setup-python@v5
+              with:
+                python-version: "3.12"
+                cache: pip
+                cache-dependency-path: requirements.txt
+
+            - name: Install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                python -m pip install -r requirements.txt
+                python -m pip install pyinstaller
+
+            - name: Install Chromium
+              run: python -m playwright install chromium
+
+            - name: Build application
+              shell: pwsh
+              run: |
+                python -m PyInstaller `
+                  --noconfirm `
+                  --clean `
+                  --onedir `
+                  --windowed `
+                  --name "LMS Tracker" `
+                  --collect-all playwright `
+                  --add-data "assets;assets" `
+                  --add-data "src/ui/styles;src/ui/styles" `
+                  src/main.py
+
+            - name: Create release artifact
+              shell: pwsh
+              run: |
+                Compress-Archive `
+                  -Path "dist/LMS Tracker/*" `
+                  -DestinationPath  "LMS-Tracker-Windows-x64.zip" `
+                  -CompressionLevel Optimal
+
+            - name: Upload build artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: LMS-Tracker-Windows-x64
+                path: LMS-Tracker-Windows-x64.zip
+                if-no-files-found: error
+
+
+            - name: Publish GitHub Release
+              if: startsWith(github.ref, 'refs/tags/')
+              uses: softprops/action-gh-release@v2
+              with:
+                name: LMS Tracker ${{ github.ref_name }}
+                generate_release_notes: true
+                files: LMS-Tracker-Windows-x64.zip
