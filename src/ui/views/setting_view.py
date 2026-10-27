@@ -59,10 +59,8 @@ class SettingsView(QWidget):
         self.content_stack = QStackedWidget()
 
         self.content_stack.addWidget(self._create_general_settings())
-        self.content_stack.addWidget(self._create_appearance_settings())
         self.content_stack.addWidget(self._create_notifications_settings())
         self.content_stack.addWidget(self._create_automation_settings())
-        self.content_stack.addWidget(self._create_theme_settings())
 
         # Footer
 
@@ -121,10 +119,8 @@ class SettingsView(QWidget):
         # Associate each item with the QStackedWidget page index
         items = [
             ("General", 0),
-            ("Appearance", 1),
-            ("Notifications", 2),
-            ("Automation", 3),
-            ("Theme", 4)
+            ("Notifications", 1),
+            ("Automation", 2),
         ]
 
         for label, index in items:

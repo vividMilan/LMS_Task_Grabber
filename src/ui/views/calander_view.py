@@ -1,4 +1,5 @@
 
+
 from PyQt6.QtCore import QDate, QPointF, Qt, pyqtSignal
 from PyQt6.QtGui import QBrush, QColor, QPainter, QPen
 from PyQt6.QtWidgets import (
@@ -88,8 +89,6 @@ class CalendarView(QWidget):
         self.update_theme_styles()
 
         self.refresh_deadline_indicators()
-
-        self.refresh_deadline_indicators()
         self.refresh_calendar()
 
     def _init_ui(self):
@@ -108,8 +107,16 @@ class CalendarView(QWidget):
 
         today = QDate.currentDate()
 
+        self.selected_date_text = today.toPyDate().strftime("%A, %B %d, %Y")
 
-        self.calendar = AssignmentCalendar(calendar_container)
+        self.selected_date_label = QLabel(self.selected_date_text)
+        self.selected_date_label.setStyleSheet(f"""
+            color: {COLORS.text_primary.name()};
+            font-size: {FONT_SIZES.lg}px;
+            font-weight: bold;
+            padding-bottom: 8px;
+        """)
+
         self.calendar = AssignmentCalendar(calendar_container)
         self.calendar.setObjectName("calendar")
         
@@ -148,9 +155,10 @@ class CalendarView(QWidget):
 
         self.scroll_area.setWidget(self.scroll_content)
 
+        self.assignment_layout.addWidget(self.selected_date_label)
+
         layout.addLayout(calender_layout, 3)
         layout.addWidget(self.scroll_area, 7)
-
 
     def refresh_deadline_indicators(self, year=None, month=None):
         """Highlight calendar dates based on assignment deadlines"""
@@ -187,9 +195,9 @@ class CalendarView(QWidget):
         self.refresh_calendar()
 
     def clear_assignments(self):
-        while self.assignment_layout.count():
+        while self.assignment_layout.count() > 1:
 
-            item = self.assignment_layout.takeAt(0)
+            item = self.assignment_layout.takeAt(1)
 
             widget = item.widget()
 
@@ -200,6 +208,10 @@ class CalendarView(QWidget):
         """Refresh assignments for the currently selected date."""
         selected_date = self.calendar.selectedDate()
         python_date = selected_date.toPyDate()
+
+        self.selected_date_label.setText(
+            selected_date.toString("dddd, MMMM dd, yyyy")
+        )
 
         db = SessionLocal()
 
