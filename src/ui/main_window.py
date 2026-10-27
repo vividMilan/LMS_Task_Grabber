@@ -67,10 +67,10 @@ class MainWindow(QMainWindow):
 
         self.configure_interval_sync()
 
-        self.scheduler.add_interval_job(
+        self.scheduler.add_daily_job(
             job_id="deadline_check",
             job_function=check_deadlines,
-            minutes=1
+            hour=18,
         )
 
         print("Starting LMS Tracker scheduler...")
@@ -98,10 +98,10 @@ class MainWindow(QMainWindow):
         )
 
         if enabled:
-            self.scheduler.add_daily_job(
+            self.scheduler.add_interval_job(
                 job_id="assignment_sync",
                 job_function=sync_assignments,
-                hour=12
+                hours=3
             )
 
     def startup_sync_if_enabled(self):

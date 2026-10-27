@@ -41,13 +41,15 @@ class AppScheduler:
         self,
         job_id,
         job_function,
-        minutes,
+        minutes = 0,
+        hours = 0,
         run_immediately=False
     ):
 
         job_options = {
             "trigger": "interval",
             "minutes": minutes,
+            "hours": hours, 
             "args": [job_id, job_function],
             "id": job_id,
             "replace_existing": True,
