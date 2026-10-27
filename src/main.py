@@ -66,7 +66,11 @@ def gui_mode():
     _qss_watcher = QSSWatcher(app, "ui/styles/style.qss")
     
     window = MainWindow()
-    window.show()
+
+    if window.should_start_minimized():
+        window.showMinimized()
+    else:
+        window.show()
     
     sys.exit(app.exec())
 

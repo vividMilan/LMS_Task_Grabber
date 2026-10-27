@@ -1,5 +1,5 @@
 import qtawesome as qta
-from PyQt6.QtCore import QEvent, Qt
+from PyQt6.QtCore import QEvent, QSettings, Qt, pyqtSignal
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -26,7 +26,11 @@ from src.ui.styles.tokens import COLORS
 
 
 class SettingsView(QWidget):
+
+    settings_saved = pyqtSignal()
+
     def __init__(self, parent=None):
+        self.settings = QSettings("LMS Tracker", "LMS Tracker")
         super().__init__(parent)
         self.setContentsMargins(20, 20, 20, 20)
 
@@ -295,13 +299,14 @@ class SettingsView(QWidget):
 
             return
 
-
         ToastNotification(
             self,
             text=f"Reminder period saved as {due_soon_days} days",
             bg_color=COLORS.success.name(),
             duration=3000
         )
+
+        self.settings_saved.emit()
 
 
 
@@ -393,6 +398,57 @@ class SettingsView(QWidget):
         auto_sync = self._create_checkbox("Run scraping in startup")
         background = self._create_checkbox("Run scraping in intervals")
         minimized = self._create_checkbox("Open app minimized in startup")
+
+        settings_value = self.settings.value(
+                        "automation/auto_sync",
+                        False,
+                        type=bool
+                    )
+
+        background_value = self.settings.value(
+            "automation/background",
+            False,
+            type=bool
+        )
+
+        minimized_value = self.settings.value(
+            "automation/minimized",
+            False,
+            type=bool
+        )
+
+        auto_sync.setChecked(
+            settings_value
+        )
+
+        background.setChecked(
+            background_value
+        )
+
+        minimized.setChecked(
+            minimized_value
+        )
+        
+        auto_sync.toggled.connect(
+            lambda checked: self.settings.setValue(
+                "automation/auto_sync",
+                checked
+            )
+        )
+
+        background.toggled.connect(
+            lambda checked: self.settings.setValue(
+                "automation/background",
+                checked
+            )
+        )
+
+        minimized.toggled.connect(
+            lambda checked: self.settings.setValue(
+                "automation/minimized",
+                checked
+            )
+        )
 
         layout.addLayout(heading)
         layout.addWidget(auto_sync)

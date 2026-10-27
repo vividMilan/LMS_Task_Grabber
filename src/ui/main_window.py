@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QEvent, QThread, pyqtSignal
+from PyQt6.QtCore import QEvent, QSettings, QThread, QTimer, pyqtSignal
 from PyQt6.QtWidgets import (
     QApplication,
     QHBoxLayout,
@@ -44,6 +44,9 @@ class ScrapperWorker(QThread):
 class MainWindow(QMainWindow):
 
     def __init__(self):
+
+        self.settings = QSettings("LMS Tracker", "LMS Tracker")
+
         super().__init__()
 
         self.setWindowTitle("LMS Tracker")
@@ -62,12 +65,7 @@ class MainWindow(QMainWindow):
             self.on_scheduled_job_failed
         )
 
-
-        self.scheduler.add_interval_job(
-            job_id="assignment_sync",
-            job_function=sync_assignments,
-            minutes=60,
-        )
+        self.configure_interval_sync()
 
         self.scheduler.add_interval_job(
             job_id="deadline_check",
@@ -83,7 +81,39 @@ class MainWindow(QMainWindow):
             self.scheduler.stop
         )
 
-        
+        QTimer.singleShot(0, self.startup_sync_if_enabled)
+
+    def should_start_minimized(self) -> bool:
+        return self.settings.value(
+            "automation/minimized",
+            False,
+            type=bool
+        )
+
+    def configure_interval_sync(self):
+        enabled = self.settings.value(
+            "automation/background",
+            False,
+            type=bool
+        )
+
+        if enabled:
+            self.scheduler.add_daily_job(
+                job_id="assignment_sync",
+                job_function=sync_assignments,
+                hour=12
+            )
+
+    def startup_sync_if_enabled(self):
+        auto_sync = self.settings.value(
+            "automation/auto_sync",
+            False,
+            type=bool
+        )
+
+        if auto_sync:
+            self.start_sync_process()
+
     def _init_ui(self):
 
         # Central Root Widgets & Main horizontal Layout
@@ -160,6 +190,10 @@ class MainWindow(QMainWindow):
 
         self.page_calender.completed_changed.connect(
             self.update_assignment_completion
+        )
+
+        self.page_settings.settings_saved.connect(
+            self.refresh_all_views
         )
 
     def changeEvent(self, event):
@@ -266,13 +300,15 @@ class MainWindow(QMainWindow):
         
     def start_sync_process(self):
 
+        if hasattr(self, "worker") and self.worker.isRunning():
+            return
+
         print("Strating Sync.....")
 
         self.page_tasks.set_syncing(True)
 
         self.worker = ScrapperWorker()
         self.worker.finished_signal.connect(self.on_sync_finished)
-
         self.worker.start()
 
     def on_sync_finished(self, success: bool, message: str):
