@@ -19,4 +19,4 @@ def get_data_dir() -> Path:
 
 
 def get_database_path() -> Path:
-    return get_data_dir() / "assignments.db"
+    return get_data_dir() / "app.db"
