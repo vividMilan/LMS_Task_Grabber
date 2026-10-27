@@ -1,5 +1,5 @@
 import qtawesome as qta
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import QEvent, Qt
 from PyQt6.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -150,9 +150,10 @@ class SettingsView(QWidget):
         self.username_input = QLineEdit()
 
         self.username_input.setPlaceholderText("Username")
-
+        self.username_input.setObjectName("username")
 
         password_container = QWidget()
+        password_container.setObjectName("passwordContainer")
 
         password_layout = QHBoxLayout(password_container)
         password_layout.setContentsMargins(0, 0, 0, 0)
@@ -160,6 +161,10 @@ class SettingsView(QWidget):
         
         self.password_input = QLineEdit()
         self.password_input.setPlaceholderText("Password")
+        self.password_input.setObjectName("password")
+
+        self.password_input.installEventFilter(self)  
+
         self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
 
         self.password_eye_button = QPushButton()
@@ -169,22 +174,18 @@ class SettingsView(QWidget):
         )
 
         self.password_eye_button.setIcon(
-            qta.icon("fa5s.eye")
+            qta.icon(
+                "fa5s.eye",
+                color=COLORS.text_secondary.name()
+            )
         )
 
-        self.password_eye_button.setFixedSize(40, 40)
+        self.password_eye_button.setObjectName("passwordEyeButton")
 
-        self.password_eye_button.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-            }
-
-            QPushButton:hover {
-                background: rgba(255, 255, 255, 20);
-                border-radius: 5px;
-            }
-        """)
+        self.password_eye_button.setFixedSize(34, 34)
+        self.password_eye_button.setToolTip(
+            "Show password"
+        )
 
         self.password_eye_button.clicked.connect(
             self.toggle_password_visibility
@@ -211,6 +212,63 @@ class SettingsView(QWidget):
 
         layout.addStretch()
         return widget
+
+    def eventFilter(self, watched, event):
+        """
+        Update the password container border when the password input gains or loses focus   
+        """
+        if watched is getattr(self, "password_input", None):
+            if event.type() == QEvent.Type.FocusIn:
+                self._set_password_container_focus(True)
+
+            elif event.type() == QEvent.Type.FocusOut:
+                self._set_password_container_focus(False)
+
+        return super().eventFilter(watched, event)
+
+    def _set_password_container_focus(self, focused: bool):
+        container = self.findChild(
+            QWidget,
+            "passwordContainer"
+        )
+
+        if container is None:
+            return
+
+        container.setProperty("focused", focused)
+
+        # Re-apply the stylesheet selector after the property changes
+        container.style().unpolish(container)
+        container.style().polish(container)
+        container.update()
+        
+    def toggle_password_visibility(self):
+
+        if self.password_input.echoMode() == QLineEdit.EchoMode.Password:
+
+            self.password_input.setEchoMode(
+                QLineEdit.EchoMode.Normal
+            )
+
+            self.password_eye_button.setIcon(
+                qta.icon(
+                    "fa5s.eye-slash",
+                    color=COLORS.text_secondary.name()
+                )
+                
+            )
+        else:
+
+            self.password_input.setEchoMode(
+                QLineEdit.EchoMode.Password
+            )
+
+            self.password_eye_button.setIcon(
+                qta.icon(
+                    "fa5s.eye",
+                    color=COLORS.text_secondary.name()
+                )
+            )
 
     def save_settings(self):
         due_soon_days = self.notification_combo.currentData()
@@ -245,26 +303,6 @@ class SettingsView(QWidget):
             duration=3000
         )
 
-    def toggle_password_visibility(self):
-
-        if self.password_input.echoMode() == QLineEdit.EchoMode.Password:
-
-            self.password_input.setEchoMode(
-                QLineEdit.EchoMode.Normal
-            )
-
-            self.password_eye_button.setIcon(
-                qta.icon("fa5s.eye-slash")
-            )
-        else:
-
-            self.password_input.setEchoMode(
-                QLineEdit.EchoMode.Password
-            )
-
-            self.password_eye_button.setIcon(
-                qta.icon("fa5s.eye")
-            )
 
 
     def delete_credentials_btn(self):
@@ -511,6 +549,61 @@ class SettingsView(QWidget):
             QLabel#inputLabel {{
                 color: {COLORS.text_primary.name()};
                 font-size: 12px;
+            }}
+
+            /* Username input */
+            QLineEdit#username {{
+                min-height: 38px;
+                background-color: {COLORS.card_bg.name()};
+                border: 1px solid {COLORS.border.name()};
+                border-radius: 8px;
+                padding: 0px 12px;
+                color: {COLORS.text_primary.name()};
+                selection-background-color: {COLORS.accent.name()};
+            }}
+
+            QLineEdit#username:hover {{
+                border-color: {COLORS.accent_light.name()};
+            }}
+
+            QLineEdit#username:focus {{
+                border: 1px solid {COLORS.accent.name()};
+            }}
+
+            /* Unified password input container */
+            QWidget#passwordContainer {{
+                background-color: {COLORS.card_bg.name()};
+                border: 1px solid {COLORS.border.name()};
+                border-radius: 8px;
+            }}
+
+            QWidget#passwordContainer[focused="true"] {{
+                border: 1px solid {COLORS.accent.name()};
+            }}
+
+            QLineEdit#password {{
+                min-height: 38px;
+                background: transparent;
+                border: none;
+                border-radius: 8px;
+                padding: 0px 12px;
+                color: {COLORS.text_primary.name()};
+                selection-background-color: {COLORS.accent.name()};
+            }}
+
+            QPushButton#passwordEyeButton {{
+                border: none;
+                background: transparent;
+                border-radius: 6px;
+                padding: 4px;
+            }}
+
+            QPushButton#passwordEyeButton:hover {{
+                background-color: {COLORS.window_bg.name()};
+            }}
+
+            QPushButton#passwordEyeButton:pressed {{
+                background-color: {COLORS.border.name()};
             }}
 
             QComboBox {{
