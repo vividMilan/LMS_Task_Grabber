@@ -30,3 +30,13 @@ __pycache__/
 # IDE & Editor settings
 .vscode/
 .idea/
+
+requirements.md
+
+# PyInstaller build artifacts
+build/
+dist/
+*.spec
+
+# pre commit 
+.pre-commit-config.yaml

@@ -57,6 +57,17 @@ def grabUpcomingEvents(page):
 
         heading = page.locator("h2").first.inner_text().strip()
 
+        description_locator = page.locator("div.activity-description")
+
+        if description_locator.count() > 0:
+            description = description_locator.first.inner_text(
+                timeout=3000
+            ).strip()
+        else:
+            description = "No description found"
+
+            print("Description not found. Skipping.")
+
         # Skip if submitted
         cell = page.locator("table td").first
         if cell.count() > 0:
@@ -76,7 +87,7 @@ def grabUpcomingEvents(page):
             "a[href*='xls'], "
             "a[href*='xlsx'], "
             "a[href*='doc'], "
-            "a[href*='docx'], "
+            "a[href*='docx']"
         )
 
         question_files = file_locators.all()
@@ -117,6 +128,7 @@ def grabUpcomingEvents(page):
         scraped_task.link = link
         scraped_task.due_date = parse_due_date(raw_due)
         scraped_task.type = type
+        scraped_task.description = description
 
         assignments.append(scraped_task)
 

@@ -1,4 +1,5 @@
-import uuid
+import hashlib
+from threading import Lock
 
 from sqlalchemy.orm import Session
 
@@ -10,24 +11,43 @@ from src.database.repositories import (
     viva_slot_repo,
 )
 
+_sync_lock = Lock()
+
+
+def generate_assignment_id(course_id: str, link: str):
+    value = f"{course_id}:{link}"
+    return hashlib.sha256(value.encode()).hexdigest()
+
 
 def process_and_save_scraped_assignment(
-    db: Session, scraped_items: list[ScrappedAssignment]
+    db: Session, 
+    scraped_items: list[ScrappedAssignment]
 ) -> dict:
-    """Iterates through scraped assignments, ensures course records exist,
-
-    and upserts assignments into the local database.
+    """Create or update scraped assignments and related records.
     """
 
-    stats = {"created": 0, "updated": 0, "total": len(scraped_items)}
+    stats = {
+        "created": 0, 
+        "updated": 0, 
+        "total": len(scraped_items)
+    }
 
     try:
         for item in scraped_items:
+
+            # ----------------- Ensure Code exits ---------------------
             course_repo.upsert_course(
                 db=db, course_id=item.course_id, name=item.course_name
             )
 
-            assignment_id = str(uuid.uuid4())
+            # ------------ Genarate assignment ID -----------------
+
+            assignment_id = generate_assignment_id(
+                course_id=item.course_id,
+                link=item.link
+            )
+
+            # ------------ Save/Upadate Assignment
 
             _assignment, is_created = assignment_repo.upsert_assignment(
                 db=db,
@@ -37,8 +57,11 @@ def process_and_save_scraped_assignment(
                 course_id=item.course_id,
                 name=item.heading,
                 due=item.due_date,
-                files=item.files
+                files=item.files,
+                description=item.description
             )
+
+            # ---------------- Save Viva slot if exists ------------------------
 
             if item.start_time and item.end_time:
                 viva_slot_repo.upsert_viva_slot(
@@ -50,19 +73,26 @@ def process_and_save_scraped_assignment(
 
                 print("Created Viva Slot")
 
+
+            # --------------- Update Stats ----------------------
+
             if is_created:
                 stats["created"] += 1
             else:
                 stats["updated"] += 1
 
-            if item.file_link or item.file_path:
-                file_repo.add_if_not_exists(
-                    db=db,
-                    course_id=item.course_id,
-                    file_path=item.file_path,
-                    file_link=item.file_link,
-                    assignment_id=assignment_id,
-                )
+            # ----------------- Save assignment files --------------------
+
+            for file in item.files:
+
+                if file.file_link or file.file_path:
+                    file_repo.add_if_not_exists(
+                        db=db,
+                        course_id=item.course_id,
+                        file_path=file.file_path,
+                        file_link=file.file_link,
+                        assignment_id=assignment_id,
+                    )
 
             course_repo.upsert_course(
                 db=db, course_id=item.course_id, name=item.course_name
@@ -73,3 +103,25 @@ def process_and_save_scraped_assignment(
         raise
 
     return stats
+
+
+def sync_assignments() -> tuple[bool, str]:
+    """Run an assignment sync without overlapping another sync."""
+
+    if not _sync_lock.acquire(blocking=False):
+        return False, "An assignment sync is already running"
+
+    try:
+        # local import avoids a circular import
+        # scrape_task imports process_and_save_assignments
+        # from this module
+
+        from src.automation.scrape_tasks import scrape_tasks
+
+        return scrape_tasks()
+
+    except Exception as exc: # noqa: BLE001
+        return False, f"Assginment sync failed: {exc}"
+
+    finally:
+        _sync_lock.release()
