@@ -3,15 +3,17 @@ from pathlib import Path
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from src.config.paths import get_database_path
+
 from .models import Base
 
 project_root = Path(__file__).parent.parent.parent
 data_dir = project_root / "data"
 data_dir.mkdir(exist_ok=True)
 
-DB_PATH = data_dir / "app.db"
+DATABASE_PATH = get_database_path()
 
-DATABASE_URL = f"sqlite:///{DB_PATH}"
+DATABASE_URL = f"sqlite:///{DATABASE_PATH.as_posix()}"
 
 engine = create_engine(
     DATABASE_URL, echo=True, connect_args={"check_same_thread": False}

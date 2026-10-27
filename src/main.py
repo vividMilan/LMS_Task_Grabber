@@ -1,7 +1,6 @@
 
 import os
 import sys
-from pathlib import Path
 
 from dotenv import load_dotenv
 from PyQt6.QtCore import QFileSystemWatcher
@@ -11,6 +10,7 @@ from PyQt6.QtWidgets import QApplication
 from src.automation.auth import login
 from src.automation.browser import launch_browser
 from src.automation.task_grabber import grabUpcomingEvents
+from src.config.resource_path import resource_path
 from src.database.connection import SessionLocal, init_db
 from src.services.sync_service import process_and_save_scraped_assignment
 from src.ui.main_window import MainWindow
@@ -43,10 +43,15 @@ def cli_mode():
         db.close()
 
 class QSSWatcher:
-    def __init__(self, app: QApplication, qss_relative_path: str):
+    def __init__(self, app: QApplication):
         self.app = app
-        self.qss_path = Path(__file__).resolve().parent / qss_relative_path
-        
+        self.qss_path = resource_path("src/ui/styles/style.qss")
+
+        if not self.qss_path.exists():
+            raise FileNotFoundError(
+                f"Stylesheet not found: {self.qss_path}"
+            )
+                
         self.watcher = QFileSystemWatcher([str(self.qss_path)])
         self.watcher.fileChanged.connect(self.reload_styles)
         
@@ -62,8 +67,11 @@ def gui_mode():
     
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
-    app.setWindowIcon(QIcon("assets/logo.png"))
-    _qss_watcher = QSSWatcher(app, "ui/styles/style.qss")
+
+    icon_path = resource_path("assets/logo.png")
+
+    app.setWindowIcon(QIcon(str(icon_path)))
+    _qss_watcher = QSSWatcher(app)
     
     window = MainWindow()
 
