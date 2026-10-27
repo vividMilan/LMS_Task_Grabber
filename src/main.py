@@ -61,11 +61,13 @@ class QSSWatcher:
 def gui_mode():
     
     app = QApplication(sys.argv)
+    app.setQuitOnLastWindowClosed(False)
     app.setWindowIcon(QIcon("assets/logo.png"))
     _qss_watcher = QSSWatcher(app, "ui/styles/style.qss")
+    
     window = MainWindow()
-
     window.show()
+    
     sys.exit(app.exec())
 
 

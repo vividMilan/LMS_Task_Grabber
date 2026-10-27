@@ -1,9 +1,9 @@
-from PyQt6.QtCore import QThread, pyqtSignal
-from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import QEvent, QThread, pyqtSignal
 from PyQt6.QtWidgets import (
     QApplication,
     QHBoxLayout,
     QMainWindow,
+    QMenu,
     QMessageBox,
     QStackedWidget,
     QSystemTrayIcon,
@@ -50,6 +50,8 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 200, 1200, 700)
         self._init_ui()
 
+        self.setup_tray()
+
         self.scheduler = AppScheduler()
 
         self.scheduler.signals.job_completed.connect(
@@ -83,10 +85,6 @@ class MainWindow(QMainWindow):
 
         
     def _init_ui(self):
-
-        self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QIcon.fromTheme("dialog-information"))
-        self.tray_icon.show()
 
         # Central Root Widgets & Main horizontal Layout
         self.root_widget = QWidget()
@@ -162,6 +160,72 @@ class MainWindow(QMainWindow):
 
         self.page_calender.completed_changed.connect(
             self.update_assignment_completion
+        )
+
+    def changeEvent(self, event):
+        if (
+            event.type() == QEvent.Type.WindowStateChange
+            and self.isMinimized()
+        ):
+            self.hide()
+
+        super().changeEvent(event)
+
+    def setup_tray(self):
+        self.tray_icon = QSystemTrayIcon(self)
+
+        self.tray_icon.setIcon(
+            self.windowIcon()
+        )
+
+        self.tray_icon.setToolTip('LMS tracker')
+
+        tray_menu = QMenu()
+
+        open_action = tray_menu.addAction("Open LMS Tracker")
+        open_action.triggered.connect(self.show_window)
+
+        sync_action = tray_menu.addAction("Sync Assignments")
+        sync_action.triggered.connect(self.start_sync_process)
+
+        tray_menu.addSeparator()
+
+
+        quit_action = tray_menu.addAction("Quit")
+        quit_action.triggered.connect(
+            QApplication.instance().quit
+        )
+
+        self.tray_icon.setContextMenu(tray_menu)
+
+        self.tray_icon.activated.connect(
+            self.on_tray_activated
+        )
+
+        self.tray_icon.show()
+
+    def show_window(self):
+        self.showNormal()
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+
+    def on_tray_activated(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason.DoubleClick:
+            self.show_window()
+
+
+    def closeEvent(self, event):
+        # Hide instead of closing the application
+        event.ignore()
+        self.hide()
+
+        self.tray_icon.showMessage(
+            "LMS Tracker",
+            "The app is still running in the system tray.",
+            QSystemTrayIcon.MessageIcon.Information,
+            3000,
         )
 
     def check_deadline_notification(self, deadlines=None):
@@ -293,6 +357,8 @@ class MainWindow(QMainWindow):
 
             if success:
                 self.page_tasks.refresh_tasks()
+
+            self.refresh_all_views()
 
     def on_scheduled_job_failed(self, job_id, error_message):
         self.tray_icon.showMessage(
