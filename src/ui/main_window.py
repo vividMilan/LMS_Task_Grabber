@@ -45,6 +45,8 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
 
+        self.previous_page = None
+
         self.settings = QSettings("LMS Tracker", "LMS Tracker")
 
         super().__init__()
@@ -160,10 +162,14 @@ class MainWindow(QMainWindow):
         )
 
         self.page_assignment_view.back_requested.connect(
-            self.show_tasks
+            self.go_back
         )
 
         self.page_calender.assignment_clicked.connect(
+            self.open_assignment
+        )
+
+        self.page_dashboard.assignment_clicked.connect(
             self.open_assignment
         )
 
@@ -332,18 +338,17 @@ class MainWindow(QMainWindow):
 
         self.refresh_assignment_views()
 
+    def go_back(self):
+        if self.previous_page is not None:
+            self.content_stack.setCurrentWidget(self.previous_page)
+
+        print("Clicked not working")
+
     def open_assignment(self, task):
-        print(
-            "Opening assignment:",
-            task.title
-        )
+        self.previous_page = self.content_stack.currentWidget()
 
-        # Give the selected taskCard to AssingmentView
-        self.page_assignment_view.set_assignment(
-            task
-        )
+        self.page_assignment_view.set_assignment(task)
 
-        # Switch Page
         self.content_stack.setCurrentWidget(
             self.page_assignment_view
         )

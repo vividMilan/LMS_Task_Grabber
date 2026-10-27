@@ -27,6 +27,7 @@ class DashboardView(QWidget):
 
     assignment_updated = pyqtSignal()
     completed_changed = pyqtSignal(str, bool)
+    assignment_clicked = pyqtSignal(object)
 
 
     def __init__(self):
@@ -325,6 +326,10 @@ class DashboardView(QWidget):
 
             task_card.completed_changed.connect(
                 self.completed_changed.emit
+            )
+
+            task_card.clicked.connect(
+                self.assignment_clicked.emit
             )
 
             self.upcoming_tasks_layout.addWidget(task_card)
