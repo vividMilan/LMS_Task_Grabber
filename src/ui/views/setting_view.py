@@ -328,15 +328,18 @@ class SettingsView(QWidget):
 
         if lms_link:
             self.lms_link_input.setText(lms_link)
+        else:
+            self.lms_link_input.clear()
 
         if username:
             self.username_input.setText(username)
+        else:
+            self.username_input.clear()
 
         if password:
             self.password_input.setText(password)
-
-        if lms_link:
-            self.lms_link_input.setText(lms_link)
+        else:
+            self.password_input.clear()
 
     def save_lms_link(self, lms_link: str):
 
