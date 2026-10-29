@@ -17,7 +17,14 @@ def save_credentials(username: str, password: str) -> None:
         password=password
     )
 
-    print("Credentials saved")
+def save_lms_link(lms_link: str) -> None:
+    """Save LMS link to OS credential store."""
+
+    keyring.set_password(
+        SERVICE_NAME,
+        "lms_link",
+        lms_link
+    )
 
 def get_credentials() -> str | None:
     """Get the saved LMS password."""
@@ -36,6 +43,16 @@ def get_credentials() -> str | None:
         return None, None
 
     return username, password
+
+def get_lms_link() -> str | None:
+    """Get the saved LMS link"""
+
+    lms_link = keyring.get_password(
+        SERVICE_NAME,
+        "lms_link"
+    )
+
+    return lms_link
 
 def delete_credentials() -> None:
     """Delete saved LMS credentials."""

@@ -1,19 +1,17 @@
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from src.automation.schemas import ScrapedFile, ScrappedAssignment
+from src.config.time import APP_TIMEZONE
 from src.database.models import AssignmentType
 from src.utils.assignment_type import assignment_type
 from src.utils.date_parser import parse_due_date, parse_viva_time
 from src.utils.download_file import download_file
 from src.utils.extract_course import extract_course
 
-local_timezone = ZoneInfo("Asia/Colombo")
-
 
 def grabUpcomingEvents(page):
 
-    today = datetime.now(local_timezone).date()
+    today = datetime.now(APP_TIMEZONE).date()
 
     day_cell_links = []
 

@@ -19,7 +19,9 @@ from src.config.time import get_due_soon_days, set_due_soon_days
 from src.services.credential_service import (
     delete_credentials,
     get_credentials,
+    get_lms_link,
     save_credentials,
+    save_lms_link,
 )
 from src.ui.components.toast_notification import ToastNotification
 from src.ui.styles.tokens import COLORS
@@ -194,6 +196,12 @@ class SettingsView(QWidget):
         password_layout.addWidget(self.password_input)
         password_layout.addWidget(self.password_eye_button)
 
+        # LMS Link
+        self.lms_link_input = QLineEdit()
+        self.lms_link_input.setPlaceholderText("LMS link")
+        self.lms_link_input.setObjectName("LmsInput")
+
+
         self.render_credentials()
 
         submit_btn = QPushButton("Save Credentials")
@@ -207,6 +215,7 @@ class SettingsView(QWidget):
 
         layout.addWidget(self.username_input)
         layout.addWidget(password_container)
+        layout.addWidget(self.lms_link_input)
         layout.addWidget(submit_btn)
         layout.addWidget(delete_btn)
 
@@ -315,32 +324,70 @@ class SettingsView(QWidget):
 
         username, password = get_credentials()
 
+        lms_link = get_lms_link()
+
+        if lms_link:
+            self.lms_link_input.setText(lms_link)
+
         if username:
             self.username_input.setText(username)
 
         if password:
             self.password_input.setText(password)
 
+        if lms_link:
+            self.lms_link_input.setText(lms_link)
+
+    def save_lms_link(self, lms_link: str):
+
+        if not lms_link:
+            return False
+
+        existing_lms_link = get_lms_link()
+
+        if existing_lms_link == lms_link:
+            ToastNotification(self, text="LMS link already saved", bg_color=COLORS.warning.name(), duration=3000)
+            return False
+
+        save_lms_link(lms_link=lms_link)
+        return True
+        
     def save_lms_credentials(self):
         username = self.username_input.text().strip()
         password = self.password_input.text()
+        lms_link = self.lms_link_input.text().strip()
 
+        changed_stuffs = []
 
-        if not username or password:
-            pass
+        if username or password:
+            existing_username, existing_password = get_credentials()
 
-        existing_username, existing_password = get_credentials()
+            if username == existing_username and password == existing_password:
+                pass
+            else:
+                save_credentials(username=username, password=password)
+                changed_stuffs.append("Credentials")
 
-        if username == existing_username and password == existing_password:
-            ToastNotification(self, text="Credentials Already Saved", bg_color=COLORS.warning.name(), duration=3000)
-            return
+        if lms_link:
 
-        save_credentials(username=username, password=password)
-        self.render_credentials()
+            existing_lms_link = get_lms_link()
 
-        ToastNotification(self, text="Credentials Saved", bg_color=COLORS.success.name(), duration=3000)
+            if existing_lms_link and (lms_link == existing_lms_link):
+                pass
+            else:
+                if self.save_lms_link(lms_link=lms_link):
+                    changed_stuffs.append("LMS link")
 
-        print("Credentials saved")
+        if changed_stuffs:
+            msg = ", ".join(changed_stuffs)
+            ToastNotification(self, text=f"{msg} Saved", bg_color=COLORS.success.name(), duration=3000)
+
+            self.render_credentials()
+        else:
+            ToastNotification(self, text="Nothing to do here", bg_color=COLORS.warning.name(), duration=3000)
+
+        
+
 
     def _create_appearance_settings(self):
         widget = QWidget()
@@ -619,6 +666,25 @@ class SettingsView(QWidget):
             }}
 
             QLineEdit#username:focus {{
+                border: 1px solid {COLORS.accent.name()};
+            }}
+
+            /* LMS Input */
+            QLineEdit#LmsInput {{
+                min-height: 38px;
+                background-color: {COLORS.card_bg.name()};
+                border: 1px solid {COLORS.border.name()};
+                border-radius: 8px;
+                padding: 0px 12px;
+                color: {COLORS.text_primary.name()};
+                selection-background-color: {COLORS.accent.name()};
+            }}
+            
+            QLineEdit#LmsInput:hover {{
+                border-color: {COLORS.accent_light.name()};
+            }}
+            
+            QLineEdit#LmsInput:focus {{
                 border: 1px solid {COLORS.accent.name()};
             }}
 

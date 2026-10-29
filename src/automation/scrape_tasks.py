@@ -1,4 +1,3 @@
-import os
 
 from dotenv import load_dotenv
 from playwright.sync_api import Error as PlaywrightError
@@ -8,7 +7,7 @@ from src.automation.auth import login
 from src.automation.browser import launch_browser
 from src.automation.task_grabber import grabUpcomingEvents
 from src.database.connection import SessionLocal
-from src.services.credential_service import get_credentials
+from src.services.credential_service import get_credentials, get_lms_link
 from src.services.sync_service import process_and_save_scraped_assignment
 
 load_dotenv()
@@ -18,11 +17,14 @@ def scrape_tasks() -> tuple[bool, str]:
     """Scrape LMS assignments and save them to the database."""
 
     username, password = get_credentials()
+
+    print(username)
+    print(password)
     
     if not password or not username:
         return False, "Please configure username and password in settings"
     
-    url = os.getenv("LMS_URL")
+    url = get_lms_link()
 
     if not url:
         return False, "LMS url is not configured"
