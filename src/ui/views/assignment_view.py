@@ -24,12 +24,15 @@ from src.utils.strip_datetime import strip_due
 
 class AssignmentView(QWidget):
 
-    assignment_updated = pyqtSignal()
+    assignment_updated = pyqtSignal(str, bool)
 
     # Emitted when user clicks "Back to assignments"
     back_requested = pyqtSignal()
 
     def __init__(self, parent=None):
+
+        self.assignment_id = None
+        self.is_completed = None
 
         super().__init__(parent)
 
@@ -332,10 +335,14 @@ class AssignmentView(QWidget):
         # MARK AS COMPLETED BUTTON
         # =====================================================
 
-        mark_complete_button = QPushButton("Mark as Completed")
-        mark_complete_button.setObjectName("markAsCompleted")
+        self.mark_complete_button = QPushButton("Mark as Completed")
+        self.mark_complete_button.setObjectName("markAsCompleted")
 
-        self.right_layout.addWidget(mark_complete_button)
+        self.mark_complete_button.clicked.connect(
+            self.update_assginment
+        )
+
+        self.right_layout.addWidget(self.mark_complete_button)
 
 
         self.scroll_layout.addWidget(self.left_content, 7)
@@ -343,7 +350,40 @@ class AssignmentView(QWidget):
         self.scroll_area.setWidget(self.scroll_content)
         layout.addWidget(self.scroll_area)
 
+    def update_assginment(self):
+        print("Mark as completed clicked")
+        
+        if not self.assignment_id:
+            return
+
+        print(f"Assignmnet ID: {self.assignment_id}")
+        print(f"Completed : {self.is_completed}")
+
+        new_status = not self.is_completed
+
+        self.mark_complete_button.setEnabled(False)
+        self.mark_complete_button.setText("Saving....")
+
+        self.assignment_updated.emit(
+            self.assignment_id,
+            new_status
+        )
+
+    def set_completion_state(self, is_completed: bool):
+
+        self.is_completed = is_completed
+
+        if is_completed:
+            self.mark_complete_button.setText("Completed")
+        else:
+            self.mark_complete_button.setText("Mark as completed")
+
+        self.mark_complete_button.setEnabled(True)
+            
+
     def set_assignment(self, assignment_id: str):
+
+        print("Set assignment called")
 
         db = SessionLocal()
 
@@ -356,7 +396,12 @@ class AssignmentView(QWidget):
             if not assignment:
                 return
 
+            self.assignment_id = str(assignment.id)
+            self.is_completed = bool(assignment.completed)
+
             self.display_assignment(assignment)
+
+            self.set_completion_state(self.is_completed)
             
 
         except Exception as e: # noqa: BLE001
@@ -385,7 +430,7 @@ class AssignmentView(QWidget):
 
         self.assignment_description.setText(assignment.description)
 
-        self.add_assginment_type(assignment)
+        self.set_completion_state(bool(assignment.completed))
 
         self.add_assginment_type(assignment)
 

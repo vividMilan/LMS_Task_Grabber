@@ -173,6 +173,7 @@ class MainWindow(QMainWindow):
             self.open_assignment
         )
 
+
         # add to the stack
         self.content_stack.addWidget(self.page_dashboard)
         self.content_stack.addWidget(self.page_tasks)
@@ -198,6 +199,10 @@ class MainWindow(QMainWindow):
             self.update_assignment_completion
         )
 
+        self.page_assignment_view.assignment_updated.connect(
+            self.update_assignment_completion
+        )
+        
         self.page_settings.settings_saved.connect(
             self.refresh_all_views
         )
@@ -423,6 +428,8 @@ class MainWindow(QMainWindow):
 
             if updated:
                 self.refresh_all_views()
+
+                self.page_assignment_view.set_assignment(task_id)
 
         except SQLAlchemyError as e:
             print(f"Error updating task completion: {e}")
