@@ -26,6 +26,8 @@ class AssignmentType(str, Enum):
     QUIZ = "quiz"
     TMA = "tma"
     EXAM = "exam"
+    LAB = "lab"
+    PRACTICAL = "practical"
 
 
 class Base(DeclarativeBase):

@@ -9,6 +9,8 @@ TYPE_COLORS = {
     "viva": "#0D8F63",         # Emerald Green (Fresh Green)
     "lab_report": "#C52073",   # Vibrant Pink / Magenta (Warm Pink)
     "exam": "#BE1414",         # High-Alert Red (Critical Red)
+    "practical": "#F2A900",    # Bright Yellow (Warm Yellow)
+    "lab": "#6A1B9A",          # Deep Purple (Rich Purple)
 }
 
 class assignmentType(QWidget):
