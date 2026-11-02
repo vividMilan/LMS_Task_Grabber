@@ -51,8 +51,14 @@ def grabUpcomingEvents(page: Page) -> list[ScrappedAssignment]:
 
         due_div = page.locator("xpath=//div[@data-region='activity-dates']/div[2]")
 
+        print(f"[+] Scraping before: {link}")
+
         if due_div.count() == 0:
-            continue
+            due_div = page.locator("xpath=//div[@data-region='activity-dates']/div[1]")
+
+            if due_div.count() == 0:
+                print("Due date not found. Skipping.")
+                continue
 
         modern_heading = page.locator("xpath=//*[@id='region-main']/h2")
 
@@ -80,10 +86,6 @@ def grabUpcomingEvents(page: Page) -> list[ScrappedAssignment]:
             heading = heading_element.first.inner_text().strip()
         else:
             heading = "No heading found"
-
-        
-
-        # heading = page.locator("h2").first.inner_text().strip()
 
         description_locator = page.locator("div.activity-description")
 
