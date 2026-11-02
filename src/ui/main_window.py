@@ -336,7 +336,7 @@ class MainWindow(QMainWindow):
             bg_color=COLORS.success.name()
         )
 
-        self.refresh_assignment_views()
+        self.refresh_all_views()
 
     def go_back(self):
         if self.previous_page is not None:
@@ -375,7 +375,6 @@ class MainWindow(QMainWindow):
     def on_scheduled_job_completed(self, job_id, result):
         """Handle scheduler results on the GUI Thread"""
 
-
         if job_id == "deadline_check":
 
             self.check_deadline_notification(result)
@@ -397,7 +396,7 @@ class MainWindow(QMainWindow):
             )
 
             if success:
-                self.page_tasks.refresh_tasks()
+                self.refresh_all_views()
 
             self.refresh_all_views()
 
