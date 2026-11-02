@@ -25,9 +25,9 @@ It is repetitive to check for assignment due and sometimes I notice there is a a
 
 ## 🚀 Getting Started
 
-### 1. Download the zip file under releases
+1. Download the latest release under releases
 
-### 2. Configure Username, Password and LMS URL under settings
+2. Configure Username, Password and LMS URL under settings
 
 ## ⚠ Please keep these in mind
 
