@@ -11,7 +11,7 @@ def assignment_type(heading: str) -> AssignmentType | None:
         return AssignmentType.QUIZ
     elif "project" in heading_lower:
         return AssignmentType.MINI_PROJECT
-    elif "exam" in heading_lower or "test" in heading_lower:
-        return "exam"
+    elif "exam" in heading_lower:
+        return AssignmentType.EXAM
     else:
         return None

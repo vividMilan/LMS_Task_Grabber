@@ -1,15 +1,18 @@
 from datetime import datetime
 
+from playwright.sync_api import Page
+from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+
 from src.automation.schemas import ScrapedFile, ScrappedAssignment
 from src.config.time import APP_TIMEZONE
 from src.database.models import AssignmentType
 from src.utils.assignment_type import assignment_type
 from src.utils.date_parser import parse_due_date, parse_viva_time
 from src.utils.download_file import download_file
-from src.utils.extract_course import extract_course
+from src.utils.extract_course import extract_course, extract_course_from_legacy
 
 
-def grabUpcomingEvents(page):
+def grabUpcomingEvents(page: Page) -> list[ScrappedAssignment]:
 
     today = datetime.now(APP_TIMEZONE).date()
 
@@ -51,9 +54,36 @@ def grabUpcomingEvents(page):
         if due_div.count() == 0:
             continue
 
-        courseCode, courseName = extract_course(page)
+        modern_heading = page.locator("xpath=//*[@id='region-main']/h2")
 
-        heading = page.locator("h2").first.inner_text().strip()
+        try:
+            modern_heading.wait_for(
+                state="visible", 
+                timeout=3000
+            )
+
+            is_modern = True
+
+        except PlaywrightTimeoutError:
+            is_modern = False
+
+
+        if is_modern:
+            heading_element = modern_heading
+            courseCode, courseName = extract_course(page)
+
+        else:
+            heading_element = page.locator("h1")
+            courseCode, courseName = extract_course_from_legacy(page)
+
+        if heading_element.count() > 0:
+            heading = heading_element.first.inner_text().strip()
+        else:
+            heading = "No heading found"
+
+        
+
+        # heading = page.locator("h2").first.inner_text().strip()
 
         description_locator = page.locator("div.activity-description")
 
