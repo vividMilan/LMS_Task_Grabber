@@ -433,14 +433,7 @@ class MainWindow(QMainWindow):
         except SQLAlchemyError as e:
             print(f"Error updating task completion: {e}")
 
-
-    def refresh_assignment_views(self):
-        """Refresh all view that display assignments"""
-        self.page_tasks.refresh_tasks()
-
-        self.page_calender.refresh_deadline_indicators()
-        self.page_calender.refresh_calendar()
-
     def refresh_all_views(self):
         self.page_dashboard.refresh_dashboard()
-        self.page_tasks.load_assingments()
+        self.page_tasks.refresh_tasks()
+        self.page_calender.refresh_calendar()

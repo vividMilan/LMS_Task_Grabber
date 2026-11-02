@@ -223,6 +223,8 @@ class CalendarView(QWidget):
 
             self.render_assignments(assignments=assignments)
 
+            self.refresh_deadline_indicators()
+
         except SQLAlchemyError as exc:
             print(f"Failed to refresh calendar assignments: {exc}")
         finally:
